@@ -16,7 +16,11 @@ on:
         required: true
       ECR_REPOSITORY:
         required: true
-        
+     
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read 
+  
 jobs:
   docker_publish:
     name: Publish Docker Image
