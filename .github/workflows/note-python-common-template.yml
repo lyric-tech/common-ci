@@ -6,13 +6,12 @@ on:
       image_tag:
         required: true
         type: string
-      AWS_DEFAULT_REGION:
-        required: true
-        type: string
       ECR_REPOSITORY:
         required: true
         type: string
     secrets:
+      AWS_DEFAULT_REGION:
+        required: true
       AWS_ECR_ROLE_ARN:
         required: true
       AWS_S3_ROLE_ARN:
@@ -50,9 +49,9 @@ jobs:
     uses: ./.github/workflows/note-docker-publish.yml
     with:
       image_tag: ${{ inputs.image_tag }}
-      AWS_DEFAULT_REGION: ${{ inputs.AWS_DEFAULT_REGION }}
       ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
     secrets:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
 
   publish_artifact:
@@ -60,8 +59,8 @@ jobs:
     uses: ./.github/workflows/note-artifact-publish.yml
     with:
       build_version: ${{ inputs.image_tag }}
-      AWS_DEFAULT_REGION: ${{ inputs.AWS_DEFAULT_REGION }}
-      ARTIFACT_NAME: ${{ inputs.ECR_REPOSITORY }}
+      ARTIFACT_NAME: ${{ secrets.ECR_REPOSITORY }}
     secrets:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
-      ORG_NAME: ${{ secrets.ORG_NAME }}   
+      ORG_NAME: ${{ secrets.ORG_NAME }}
