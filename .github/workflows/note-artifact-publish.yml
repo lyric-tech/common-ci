@@ -40,14 +40,15 @@ jobs:
 
       - name: Set note env variables
         env:
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
       - name: Upload artifact to S3
+        env:
+          ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         run: |
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip

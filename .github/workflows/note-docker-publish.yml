@@ -44,8 +44,6 @@ jobs:
 
     - name: Set note env variables
       env:
-        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         ORG_ID: ${{ secrets.ORG_ID }}
         NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
       run: |
@@ -53,6 +51,9 @@ jobs:
         echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
     - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
