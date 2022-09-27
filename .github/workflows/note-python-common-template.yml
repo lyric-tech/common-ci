@@ -63,7 +63,7 @@ jobs:
     uses: ./.github/workflows/note-docker-publish.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-      NOTE_REPOSITORY_NAME: ${{ inputs.ECR_REPOSITORY }}
+      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
@@ -75,7 +75,7 @@ jobs:
     uses: ./.github/workflows/note-artifact-publish.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-      NOTE_REPOSITORY_NAME: ${{ inputs.ECR_REPOSITORY }}
+      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
