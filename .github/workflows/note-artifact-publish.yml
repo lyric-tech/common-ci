@@ -1,0 +1,47 @@
+name: Build and publish docker
+
+on:
+  workflow_call:
+    inputs:
+      build_version:
+        required: true
+        type: string
+      AWS_REGION:
+        required: true
+        type: string
+      ARTIFACT_NAME:
+        required: true
+        type: string
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+      ORG_NAME:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read 
+
+jobs:
+  publish_artifact:
+    name: Publish Artifact to S3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.AWS_REGION }}
+
+      - name: Upload artifact to S3
+        env:
+          ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
+          ORG_NAME: ${{ secrets.ORG_NAME }}
+          VERSION: ${{ inputs.build_version }}
+        run: |
+          aws s3 cp artifact.zip s3://lyric-stire-${ORG_NAME}/note_artifacts/${ORG_NAME}/${ARTIFACT_NAME}/${ARTIFACT_NAME}_${VERSION}.zip

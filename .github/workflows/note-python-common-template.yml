@@ -1,0 +1,71 @@
+name: CI for Python Note Developers
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+      AWS_REGION:
+        required: true
+        type: string
+    secrets:
+      AWS_ECR_ROLE_ARN:
+        required: true
+      AWS_S3_ROLE_ARN:
+        required: true
+      ECR_REGISTRY:
+        required: true
+      ECR_REPOSITORY:
+        required: true
+      ARTIFACT_NAME:
+        required: true
+      ORG_NAME:
+        required: true
+
+jobs:
+  build_artifact:
+    name: Build Artifact
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.10-alpine
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Build artifact
+        run: |
+          apt-get install -y git
+          curl -sSL https://install.python-poetry.org | python -
+          pip install git+https://cb:sYxb63fXwm2BhB2MzFUy@gitlab.com/chainbrain/platform/chainbrain.git#main
+          python -m chainbrain.utils.build_utils --version ${DOCKER_TAG} --arg date "$(date +%FT%XZ)"
+          mv .lyric/build/artifact.zip .
+
+      - name: Store artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: artifact.zip
+          retention-days: 7
+
+  docker_publish:
+    needs: build_artifact
+    uses: ./.github/workflows/note-docker-publish.yml
+    with:
+      image_tag: ${{ inputs.image_tag }}
+      AWS_REGION: ${{ inputs.AWS_REGION }}
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
+      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}   
+
+  publish_artifact:
+    needs: build_artifact
+    uses: ./.github/workflows/note-artifact-publish.yml
+    with:
+      image_tag: ${{ inputs.image_tag }}
+      AWS_REGION: ${{ inputs.AWS_REGION }}
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
+      ARTIFACT_NAME: ${{ secrets.ARTIFACT_NAME }}
+      ORG_NAME: ${{ secrets.ORG_NAME }}   
