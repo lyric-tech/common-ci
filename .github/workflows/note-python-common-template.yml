@@ -61,7 +61,7 @@ jobs:
     with:
       build_version: ${{ inputs.image_tag }}
       AWS_DEFAULT_REGION: ${{ inputs.AWS_DEFAULT_REGION }}
-      ARTIFACT_NAME: ${{ secrets.ECR_REPOSITORY }}
+      ARTIFACT_NAME: ${{ inputs.ECR_REPOSITORY }}
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
       ORG_NAME: ${{ secrets.ORG_NAME }}   
