@@ -35,7 +35,7 @@ jobs:
         env:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-          NOTE_TAG: ${{ inputs.NOTE_TAG }}
+          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
           echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
@@ -61,7 +61,7 @@ jobs:
     needs: build_artifact
     uses: ./.github/workflows/note-docker-publish.yml
     with:
-      NOTE_TAG: ${{ inputs.image_tag }}
+      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
       NOTE_REPOSITORY_NAME: ${{ inputs.ECR_REPOSITORY }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
@@ -73,7 +73,7 @@ jobs:
     needs: docker_publish
     uses: ./.github/workflows/note-artifact-publish.yml
     with:
-      NOTE_TAG: ${{ inputs.image_tag }}
+      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
       NOTE_REPOSITORY_NAME: ${{ inputs.ECR_REPOSITORY }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
