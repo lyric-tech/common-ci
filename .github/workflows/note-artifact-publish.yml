@@ -6,7 +6,7 @@ on:
       build_version:
         required: true
         type: string
-      AWS_REGION:
+      AWS_DEFAULT_REGION:
         required: true
         type: string
       ARTIFACT_NAME:
@@ -36,7 +36,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ inputs.AWS_REGION }}
+          aws-region: ${{ inputs.AWS_DEFAULT_REGION }}
 
       - name: Upload artifact to S3
         env:

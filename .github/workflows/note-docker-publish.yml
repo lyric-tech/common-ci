@@ -6,13 +6,14 @@ on:
       image_tag:
         required: true
         type: string
-      AWS_REGION:
+      AWS_DEFAULT_REGION:
+        required: true
+        type: string
+      ECR_REPOSITORY:
         required: true
         type: string
     secrets:
       AWS_ROLE_ARN:
-        required: true
-      ECR_REPOSITORY:
         required: true
      
 permissions:
@@ -31,7 +32,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-        aws-region: ${{ inputs.AWS_REGION }}
+        aws-region: ${{ inputs.AWS_DEFAULT_REGION }}
 
     - name: Login to Amazon ECR
       id: login-ecr
