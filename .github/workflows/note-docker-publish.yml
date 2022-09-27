@@ -3,13 +3,17 @@ name: Build and publish docker
 on:
   workflow_call:
     inputs:
-      image_tag:
+      NOTE_TAG:
         required: true
         type: string
-      ECR_REPOSITORY:
+      NOTE_REPOSITORY_NAME:
         required: true
         type: string
     secrets:
+      CHAINBRAIN_TOKEN:
+        required: true
+      ORG_ID:
+        required: true
       AWS_ROLE_ARN:
         required: true
       AWS_DEFAULT_REGION:
@@ -17,16 +21,16 @@ on:
 
 permissions:
   id-token: write
-  contents: read 
-  
+  contents: read
+
 jobs:
   docker_publish:
     name: Build and Publish Notes Docker Image
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
-      uses: actions/checkout@v2
-    
+      uses: actions/checkout@v3
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -38,17 +42,31 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Set note env variables
       env:
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+        ORG_ID: ${{ secrets.ORG_ID }}
+        NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
       run: |
-        # Build a docker container and push it to ECR 
-        docker pull ${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ inputs.image_tag }} || true
-        docker build --cache-from ${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ inputs.image_tag }} -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ inputs.image_tag }} .
+        echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+        echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+
+    - name: Build, tag, and push image to Amazon ECR
+      run: |
+        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+        DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
+          --build-arg private_repo_username=chainbrain-token \
+          --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
+          -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
+        aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
+          --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
+          --encryption-configuration '{"encryptionType":"KMS"}' \
+          --tags Key=sprinto,Value=prod Key=env,Value=prod
+        docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
 
         echo "Pushing Image to ECR..."
-        docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ inputs.image_tag }}
+        docker push ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
         echo "::group::Image Tag"
-        echo "${{ inputs.image_tag }}"
+        echo "${{ inputs.NOTE_TAG }}"
         echo "::endgroup::"

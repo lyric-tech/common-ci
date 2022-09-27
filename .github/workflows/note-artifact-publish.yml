@@ -1,25 +1,25 @@
-name: Build and publish docker
+name: Publish artifact
 
 on:
   workflow_call:
     inputs:
-      build_version:
+      NOTE_TAG:
         required: true
         type: string
-      ARTIFACT_NAME:
+      NOTE_REPOSITORY_NAME:
         required: true
         type: string
     secrets:
+      ARTIFACT_S3_PATH:
+        required: true
       AWS_DEFAULT_REGION:
         required: true
       AWS_ROLE_ARN:
         required: true
-      ORG_NAME:
-        required: true
 
 permissions:
   id-token: write
-  contents: read 
+  contents: read
 
 jobs:
   publish_artifact:
@@ -38,10 +38,16 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           role-duration-seconds: 900
 
-      - name: Upload artifact to S3
+      - name: Set note env variables
         env:
-          ARTIFACT_NAME: ${{ inputs.ARTIFACT_NAME }}
-          ORG_NAME: ${{ secrets.ORG_NAME }}
-          VERSION: ${{ inputs.build_version }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
+          NOTE_TAG: ${{ inputs.NOTE_TAG }}
+          NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
         run: |
-          aws s3 cp artifact.zip s3://lyric-stire-${ORG_NAME}/note_artifacts/${ORG_NAME}/${ARTIFACT_NAME}/${ARTIFACT_NAME}_${VERSION}.zip
+          echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+
+      - name: Upload artifact to S3
+        run: |
+          aws configure set region $AWS_DEFAULT_REGION
+          aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
