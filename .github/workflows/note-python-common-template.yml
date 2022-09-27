@@ -59,7 +59,7 @@ jobs:
     uses: ./.github/workflows/note-artifact-publish.yml
     with:
       build_version: ${{ inputs.image_tag }}
-      ARTIFACT_NAME: ${{ secrets.ECR_REPOSITORY }}
+      ARTIFACT_NAME: ${{ inputs.ECR_REPOSITORY }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
