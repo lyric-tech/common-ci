@@ -20,6 +20,8 @@ on:
         required: true
       AWS_S3_ROLE_ARN:
         required: true
+      ARTIFACT_S3_PATH:
+        required: true
 
 jobs:
   build_artifact:

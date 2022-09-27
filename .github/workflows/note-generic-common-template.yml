@@ -18,7 +18,9 @@ on:
         required: true
       ORG_NAME:
         required: true
-
+      ARTIFACT_S3_PATH:
+        required: true
+        
 jobs:
   build_artifact:
       name: Build Artifact
