@@ -42,7 +42,7 @@ jobs:
 
       - name: Build artifact
         run: |
-          echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+          echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
           apt-get update && \
           apt-get install -y --no-install-recommends git
           curl -sSL https://install.python-poetry.org | python -
