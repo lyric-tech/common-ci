@@ -35,12 +35,13 @@ jobs:
         env:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
           echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
       - name: Build artifact
+        env:
+          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
         run: |
           echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
           apt-get update && \
