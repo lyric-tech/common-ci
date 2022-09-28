@@ -9,6 +9,9 @@ on:
       NOTE_REPOSITORY_NAME:
         required: true
         type: string
+      NOTE_CI_TEMPLATE_VERSION:
+        required: true
+        type: string
     secrets:
       CHAINBRAIN_TOKEN:
         required: true
@@ -54,10 +57,10 @@ jobs:
       env:
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+        NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
-        echo ${{ github.ref_name }}
-        curl https://raw.githubusercontent.com/lyric-tech/common-ci/develop/note/Dockerfile.base > Dockerfile.base
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.base > Dockerfile.base
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \

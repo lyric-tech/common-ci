@@ -9,6 +9,9 @@ on:
       NOTE_REPOSITORY_NAME:
         required: true
         type: string
+      NOTE_CI_TEMPLATE_VERSION:
+        required: true
+        type: string
     secrets:
       CHAINBRAIN_TOKEN:
         required: true
@@ -66,6 +69,7 @@ jobs:
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
       NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+      NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
