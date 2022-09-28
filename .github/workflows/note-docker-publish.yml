@@ -59,6 +59,7 @@ jobs:
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
+          --build-arg docker_registry=${ECR_REGISTRY} \
           -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
         aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
           --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
