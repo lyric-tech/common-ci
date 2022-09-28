@@ -56,6 +56,7 @@ jobs:
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+        env
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/develop/note/Dockerfile.base > Dockerfile.base
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
