@@ -58,7 +58,7 @@ jobs:
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-        GITHUB_LYRIC_USERNAME: ${{ github.repository }}
+        GITHUB_LYRIC_USERNAME: ${{ github.actor }}
         GITHUB_LYRIC_TOKEN: ${{ github.token }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
