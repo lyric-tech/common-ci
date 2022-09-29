@@ -58,14 +58,17 @@ jobs:
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
+        GITHUB_LYRIC_USERNAME: ${{ github.repository }}
+        GITHUB_LYRIC_TOKEN: ${{ github.token }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+        echo "github credentials: $GITHUB_LYRIC_USERNAME, $GITHUB_LYRIC_TOKEN"
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.base > Dockerfile.base
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
-          --build-arg github_username=${{ github.repository }} \
-          --build-arg github_token=${{ github.token }} \
+          --build-arg github_username=${GITHUB_LYRIC_USERNAME} \
+          --build-arg github_token=${GITHUB_LYRIC_TOKEN} \
           --build-arg docker_registry=${ECR_REGISTRY} \
           -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
         aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
