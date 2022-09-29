@@ -9,9 +9,6 @@ on:
       ECR_REPOSITORY:
         required: true
         type: string
-      NAMESPACE:
-        required: true
-        type: string
       ENVIRONMENT:
         required: true
         type: string
@@ -28,6 +25,8 @@ on:
         required: true
       AWS_ROLE_ARN:
           required: true
+      NAMESPACE:
+        required: true
 
 permissions:
   id-token: write
@@ -62,6 +61,6 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
-        NAMESPACE: ${{ inputs.NAMESPACE }}
+        NAMESPACE: ${{ secrets.NAMESPACE }}
       with:
         args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -n $NAMESPACE
