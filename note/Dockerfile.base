@@ -19,6 +19,7 @@ USER ${spark_uid}
 WORKDIR /note
 COPY --from=requirements-stage /tmp/requirements.txt .
 RUN git config --global credential.helper store && \
+    echo "https://$github_username:$github_token@github.com" > $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" > $HOME/.git-credentials && \
     pip install --no-cache-dir --upgrade -r /note/requirements.txt && \
     rm -rf ${HOME}/.git-credentials
