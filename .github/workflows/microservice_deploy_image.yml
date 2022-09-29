@@ -21,8 +21,6 @@ on:
         required: true
       KUBE_CONFIG_DATA:
         required: true
-      ECR_REGISTRY:
-        required: true
       AWS_ROLE_ARN:
           required: true
       NAMESPACE:
