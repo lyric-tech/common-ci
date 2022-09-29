@@ -63,7 +63,7 @@ jobs:
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
         GITHUB_LYRIC_USERNAME: ${{ secrets.GITHUB_LYRIC_USERNAME }}
-        GITHUB_LYRIC_TOKEN: ${{ secrets.GITHUB_LYRIC_TOKEN }}
+        GITHUB_LYRIC_TOKEN: ${{ github.token }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         echo "github credentials: $GITHUB_LYRIC_USERNAME, $GITHUB_LYRIC_TOKEN"
