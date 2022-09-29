@@ -15,6 +15,10 @@ on:
     secrets:
       AWS_DEFAULT_REGION:
         required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
       KUBE_CONFIG_DATA:
         required: true
       AWS_ROLE_ARN:
@@ -34,7 +38,7 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v2
-
+    
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -45,12 +49,19 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.AWS_DEFAULT_REGION }}
+
     - name: Deploy to Cluster
       uses: kodermax/kubectl-aws-eks@master
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
         NAMESPACE: ${{ secrets.NAMESPACE }}
       with:
