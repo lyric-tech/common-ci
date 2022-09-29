@@ -13,6 +13,10 @@ on:
         required: true
         type: string
     secrets:
+      GITHUB_LYRIC_USERNAME:
+        required: true
+      GITHUB_LYRIC_TOKEN:
+        required: true
       CHAINBRAIN_TOKEN:
         required: true
       ORG_ID:
@@ -75,6 +79,8 @@ jobs:
       AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
       ORG_ID: ${{ secrets.ORG_ID }}
       CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+      GITHUB_LYRIC_USERNAME: ${{ secrets.GITHUB_LYRIC_USERNAME }}
+      GITHUB_LYRIC_TOKEN: ${{ secrets.GITHUB_LYRIC_TOKEN }}
 
   publish_artifact:
     needs: docker_publish

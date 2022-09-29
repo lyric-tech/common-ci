@@ -13,6 +13,10 @@ on:
         required: true
         type: string
     secrets:
+      GITHUB_LYRIC_USERNAME:
+        required: true
+      GITHUB_LYRIC_TOKEN:
+        required: true
       CHAINBRAIN_TOKEN:
         required: true
       ORG_ID:
@@ -58,7 +62,8 @@ jobs:
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-        GITHUB_LYRIC_TOKEN: ${{ github.token }}
+        GITHUB_LYRIC_USERNAME: ${{ secrets.GITHUB_LYRIC_USERNAME }}
+        GITHUB_LYRIC_TOKEN: ${{ secrets.GITHUB_LYRIC_TOKEN }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         echo "github credentials: $GITHUB_LYRIC_USERNAME, $GITHUB_LYRIC_TOKEN"
@@ -66,6 +71,7 @@ jobs:
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
+          --build-arg github_username=${GITHUB_LYRIC_TOKEN} \
           --build-arg github_token=${GITHUB_LYRIC_TOKEN} \
           --build-arg docker_registry=${ECR_REGISTRY} \
           -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
