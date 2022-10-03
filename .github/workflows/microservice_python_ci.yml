@@ -12,7 +12,9 @@ jobs:
     name: Python CI Run and Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Check out code
+      uses: actions/checkout@v3
+
     - name: Use Python
       uses: actions/setup-python@v4
       with:
@@ -23,6 +25,7 @@ jobs:
         #pip install pipenv==2022.8.5
         #pipenv lock && pipenv requirements > requirements.txt
         #pip install -r requirements.txt
+        
     - name: Run Unit Test
       run: |
         echo "Running Unit Test"
