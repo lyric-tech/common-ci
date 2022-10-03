@@ -65,4 +65,13 @@ jobs:
         IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
         NAMESPACE: ${{ secrets.NAMESPACE }}
       with:
-        args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -n $NAMESPACE
+        args: set image deployment/$ECR_REPOSITORY $ECR_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -n $NAMESPACE    
+
+    - name: Rollout Deployment
+      uses: kodermax/kubectl-aws-eks@master
+      env:
+        KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        NAMESPACE: ${{ secrets.NAMESPACE }}
+      with:
+        args: kubectl rollout restart deployment/$ECR_REPOSITORY -n $NAMESPACE
