@@ -74,4 +74,4 @@ jobs:
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
         NAMESPACE: ${{ secrets.NAMESPACE }}
       with:
-        args: kubectl rollout restart deployment/$ECR_REPOSITORY -n $NAMESPACE
+        args: rollout restart deployment/$ECR_REPOSITORY -n $NAMESPACE
