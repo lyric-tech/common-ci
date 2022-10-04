@@ -15,7 +15,7 @@ on:
     secrets:
       API_URL:
         required: true
-      GITHUB_TOKEN:
+      REPO_GITHUB_TOKEN:
         required: true
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
       with:
         repository: ${{ inputs.REPO_NAME }}
         path: ${{ inputs.BRANCH_NAME }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.REPO_GITHUB_TOKEN }}
 
     - name: Use Node.js 16.x
       uses: actions/setup-node@v3
