@@ -6,22 +6,22 @@ on:
       ENVIRONMENT:
         required: true
         type: string
+      REPO_NAME:
+        required: true
+        type: string
     secrets:
       API_URL:
-        required: true
-      REPO_NAME:
         required: true
 
 jobs:
   api_test:
     name: API Test for ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.ENVIRONMENT }}
     steps:
     - name: Check out code
       uses: actions/checkout@v3
       with:
-        repository: ${{ secrets.REPO_NAME }}
+        repository: ${{ inputs.REPO_NAME }}
 
     - name: Use Node.js 16.x
       uses: actions/setup-node@v3
