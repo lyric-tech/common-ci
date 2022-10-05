@@ -1,6 +1,4 @@
-# This is moved to microservice folder
-# Once that approach is accepted, we can delete this file
-name: Python CI Template
+name: Unit Test
 
 on:
   workflow_call:
@@ -10,17 +8,17 @@ permissions:
   contents: read 
   
 jobs:
-  kube_deploy:
-    name: Python CI Run and Test
+  unittest:
+    name: UnitTest
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
       uses: actions/checkout@v3
 
-    - name: Use Python
+    - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         echo "Installing Dependency"
