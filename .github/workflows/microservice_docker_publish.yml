@@ -1,6 +1,4 @@
-# This is moved to microservice folder
-# Once that approach is accepted, we can delete this file
-name: Build and Publish Docker Image
+name: Build and publish
 
 on:
   workflow_call:
@@ -22,8 +20,8 @@ permissions:
   contents: read 
   
 jobs:
-  docker_publish:
-    name: Build and Publish Docker Image
+  build_and_publish:
+    name: Build and Publish
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
