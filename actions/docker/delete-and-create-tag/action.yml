@@ -25,12 +25,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: lyric-tech/common-ci/actions/docker/delete-tag
+    - uses: lyric-tech/common-ci/actions/docker/delete-tag@develop
       with:
         repository: ${{ inputs.repository }}
         tag-name: ${{ inputs.tag-name }}
         token: ${{ inputs.token }}
-    - uses: lyric-tech/common-ci/actions/docker/create-tag
+    - uses: lyric-tech/common-ci/actions/docker/create-tag@develop
       with:
         repository: ${{ inputs.repository }}
         tag-name: ${{ inputs.tag-name }}
