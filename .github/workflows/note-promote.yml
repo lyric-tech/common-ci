@@ -12,9 +12,10 @@ on:
       CUSTOMER_NAME:
         required: true
         type: string
-    secrets:
       NOTES_S3_PATH:
         required: true
+        type: string
+    secrets:
       AWS_ROLE_ARN:
         required: true
       AWS_DEFAULT_REGION:
@@ -44,10 +45,8 @@ jobs:
 
       - name: Upload note to ${{ inputs.CUSTOMER_NAME }} artifact
         env:
-          NOTES_S3_PATH: ${{ secrets.NOTES_S3_PATH }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           NOTE_VERSION: ${{ inputs.NOTE_VERSION }}
         run: |
-          echo ${NOTES_S3_PATH} 
           aws configure set region $AWS_DEFAULT_REGION
-          aws s3 cp ${NOTES_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip ${NOTES_S3_PATH}/${CUSTOMER_NAME}/${NOTE_NAME}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
+          aws s3 cp ${{ inputs.NOTES_S3_PATH }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip ${{ inputs.NOTES_S3_PATH }}/${CUSTOMER_NAME}/${NOTE_NAME}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
