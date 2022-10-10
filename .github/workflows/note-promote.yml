@@ -46,7 +46,6 @@ jobs:
         env:
           ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip ${ARTIFACT_S3_PATH}/../${CUSTOMER_NAME}/${NOTE_NAME}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
