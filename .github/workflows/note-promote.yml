@@ -49,4 +49,4 @@ jobs:
           NOTE_VERSION: ${{ inputs.NOTE_VERSION }}
         run: |
           aws configure set region $AWS_DEFAULT_REGION
-          aws s3 cp ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip ${ARTIFACT_S3_PATH}/../${CUSTOMER_NAME}/${NOTE_NAME}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
+          aws s3 cp ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip ${ARTIFACT_S3_PATH}/${CUSTOMER_NAME}/${NOTE_NAME}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
