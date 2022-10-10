@@ -48,5 +48,6 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           NOTE_VERSION: ${{ inputs.NOTE_VERSION }}
         run: |
+          echo ${NOTES_S3_PATH} 
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp ${NOTES_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip ${NOTES_S3_PATH}/${CUSTOMER_NAME}/${NOTE_NAME}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
