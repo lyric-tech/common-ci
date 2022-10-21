@@ -157,7 +157,6 @@ jobs:
         echo "note_name=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//' | sed 's/-/ /')" >> $GITHUB_ENV
 
     - name: Create App in Development Server
-      if: steps.build_publish_artifact.outcome == 'success'
       env:
         url: "https://development.studio.lyric.tech"
         note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
