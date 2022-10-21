@@ -56,15 +56,15 @@ jobs:
         env:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
           echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
-          echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
 
-          python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
-          pwd 
-          ls -ltr .lyric/build/artifact.zip
+      - name: Build artifact
+        env:
+          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+        run: |
+          echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
           mv .lyric/build/artifact.zip .
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp .lyric/build/artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
