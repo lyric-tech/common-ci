@@ -68,6 +68,8 @@ jobs:
           python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
           mv .lyric/build/artifact.zip .
           aws configure set region $AWS_DEFAULT_REGION
+          echo "aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip"
+          ls -ltr
           aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
 
       - name: Configure ECR AWS credentials
