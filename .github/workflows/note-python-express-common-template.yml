@@ -126,11 +126,11 @@ jobs:
     - name: Check out note code
       uses: actions/checkout@v3
         
-    - name: Check out taf code
+    - name: Check out lyric-express code
       uses: actions/checkout@v3
       with:
-        repository: lyric-tech/taf
-        path: taf
+        repository: lyric-tech/lyric-express
+        path: lyric-express
         token: ${{ secrets.LYRIC_GITHUB_TOKEN }}
         
     - name: Use Node.js 16.x
@@ -142,11 +142,11 @@ jobs:
           
     - name: Install dependencies
       run: |
-        cp -rf dev_playground/sample_data/datasets/ ./taf/lyricExpress/inputs/
-        cp .lyric/run_config/data_map.json ./taf/lyricExpress/
-        cp .lyric/run_config/parameters.json ./taf/lyricExpress/
-        cp .lyric/note_config.json ./taf/lyricExpress/
-        cd taf
+        cp -rf dev_playground/sample_data/datasets/ ./lyric-express/lyricExpress/inputs/
+        cp .lyric/run_config/data_map.json ./lyric-express/lyricExpress/
+        cp .lyric/run_config/parameters.json ./lyric-express/lyricExpress/
+        cp .lyric/note_config.json ./lyric-express/lyricExpress/
+        cd lyric-express
         npm install --frozen-lockfile --force
 
     - name: Set note env variables
@@ -160,6 +160,6 @@ jobs:
         url: ${{ inputs.url }}
         note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
       run: |
-        cd taf
+        cd lyric-express
         npm run lyric-express
       
