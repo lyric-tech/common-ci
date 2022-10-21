@@ -116,3 +116,47 @@ jobs:
           echo "::group::Image Tag"
           echo "${{ inputs.NOTE_TAG }}"
           echo "::endgroup::"
+
+  lyric_express_create_app:
+    name: Create App
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out note code
+      uses: actions/checkout@v3
+        
+    - name: Check out taf code
+      uses: actions/checkout@v3
+      with:
+        repository: lyric-tech/taf
+        path: taf
+        token: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+        
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+          
+    - name: Install dependencies
+      run: |
+        cp -rf dev_playground/sample_data/datasets/ ./taf/lyricExpress/inputs/
+        cp .lyric/run_config/data_map.json ./taf/lyricExpress/
+        cp .lyric/run_config/parameters.json ./taf/lyricExpress/
+        cp .lyric/note_config.json ./taf/lyricExpress/
+        cd taf
+        npm install --frozen-lockfile --force
+
+    - name: Set note env variables
+      env:
+        NOTE_REPOSITORY_NAME: ${{ github.event.repository.name }}
+      run: |
+        echo "note_name=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//' | sed 's/-/ /')" >> $GITHUB_ENV
+
+    - name: Create App in ${{ inputs.url }}
+      env:
+        url: ${{ inputs.url }}
+        note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
+      run: |
+        cd taf
+        npm run lyric-express
