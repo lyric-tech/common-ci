@@ -162,8 +162,4 @@ jobs:
         note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
       run: |
         cd lyric-express
-        echo "$steps.build_publish_artifact.outcome"
-        while (( $steps.build_publish_artifact.outcome != 'success' )); do
-          echo "Waiting for Note Publish"
-        done
         npm run lyric-express
