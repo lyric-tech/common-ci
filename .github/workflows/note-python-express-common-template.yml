@@ -17,8 +17,6 @@ on:
         required: true
       LYRIC_GITHUB_TOKEN:
         required: true
-      CHAINBRAIN_TOKEN:
-        required: true
       ORG_ID:
         required: true
       AWS_DEFAULT_REGION:
@@ -30,9 +28,13 @@ on:
       ARTIFACT_S3_PATH:
         required: true
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build_publish_artifact:
-    name: Build Artifact
+    name: Build and Publish Artifact
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lyric-tech/lyric-express-base:latest
@@ -82,7 +84,6 @@ jobs:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
           ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-          CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
           NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
           LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
           LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
