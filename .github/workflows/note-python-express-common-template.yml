@@ -36,6 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lyric-tech/lyric-express-base:latest
+      credentials:
+         username: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+         password: ${{ secrets.LYRIC_GITHUB_TOKEN }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
