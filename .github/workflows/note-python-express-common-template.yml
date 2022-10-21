@@ -120,6 +120,8 @@ jobs:
   lyric_express_create_app:
     name: Create App
     runs-on: ubuntu-latest
+    outputs:
+      static_web_app_url: "http://google.com"
     steps:
     - name: Check out note code
       uses: actions/checkout@v3
@@ -160,3 +162,4 @@ jobs:
       run: |
         cd taf
         npm run lyric-express
+      
