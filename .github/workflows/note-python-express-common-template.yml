@@ -87,7 +87,7 @@ jobs:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
           NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-          ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+          ECR_REGISTRY:  "411564643746.dkr.ecr.us-east-1.amazonaws.com"
           NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
           LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
           LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
@@ -100,12 +100,15 @@ jobs:
           echo "github credentials: $LYRIC_GITHUB_USERNAME, $LYRIC_GITHUB_TOKEN"
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/$NOTE_CI_TEMPLATE_VERSION/note/Dockerfile.base > Dockerfile.base
           
+          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+
           aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
             --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
             --encryption-configuration '{"encryptionType":"KMS"}' \
             --tags Key=sprinto,Value=prod Key=env,Value=prod
 
           DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
+            --build-arg docker_registry=${ECR_REGISTRY} \
             -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
 
           docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}

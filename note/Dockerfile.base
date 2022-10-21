@@ -1,4 +1,7 @@
-FROM ghcr.io/lyric-tech/lyric-express-base:latest
+#Arguement Declaration
+ARG docker_registry
+
+FROM ${docker_registry}/lyric-express-base:latest
 ARG spark_uid=185
 USER ${spark_uid}
 WORKDIR /note
