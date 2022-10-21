@@ -86,6 +86,7 @@ jobs:
         env:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+          AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
           ECR_REGISTRY:  "411564643746.dkr.ecr.us-east-1.amazonaws.com"
           NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
@@ -94,13 +95,13 @@ jobs:
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
           echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
-
-          echo $LYRIC_GITHUB_TOKEN | docker login ghcr.io -u $LYRIC_GITHUB_USERNAME --password-stdin
+          
           echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
           echo "github credentials: $LYRIC_GITHUB_USERNAME, $LYRIC_GITHUB_TOKEN"
+
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/$NOTE_CI_TEMPLATE_VERSION/note/Dockerfile.base > Dockerfile.base
           
-          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
           aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
             --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
