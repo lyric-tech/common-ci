@@ -31,7 +31,7 @@ on:
         required: true
 
 jobs:
-  build_artifact:
+  build_publish_artifact:
     name: Build Artifact
     runs-on: ubuntu-latest
     container:
@@ -43,51 +43,71 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
+      - name: Configure S3 AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_S3_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-duration-seconds: 900
+
       - name: Set note env variables
         env:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
           echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
-
-      - name: Build artifact
-        env:
-          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-        run: |
           echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
+
           python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
           mv .lyric/build/artifact.zip .
 
-      - name: Store artifact
-        uses: actions/upload-artifact@v3
+          aws configure set region $AWS_DEFAULT_REGION
+          aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+
+      - name: Configure ECR AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: artifact
-          path: artifact.zip
-          retention-days: 7
+          role-to-assume: ${{ secrets.AWS_ECR_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-duration-seconds: 900
 
-  docker_publish:
-    needs: build_artifact
-    uses: ./.github/workflows/note-docker-publish.yml
-    with:
-      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-      NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-    secrets:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
-      ORG_ID: ${{ secrets.ORG_ID }}
-      CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
-      LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-      LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-  publish_artifact:
-    needs: docker_publish
-    uses: ./.github/workflows/note-artifact-publish.yml
-    with:
-      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-    secrets:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
-      ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ORG_ID: ${{ secrets.ORG_ID }}
+          NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+          ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+          CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+          NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
+          LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+          LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+        run: |
+          echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+          echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_EN
+
+          echo $LYRIC_GITHUB_TOKEN | docker login ghcr.io -u $LYRIC_GITHUB_USERNAME --password-stdin
+          echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+          echo "github credentials: $LYRIC_GITHUB_USERNAME, $LYRIC_GITHUB_TOKEN"
+
+          curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.base > Dockerfile.base
+
+          DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
+            -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
+
+          aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
+            --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
+            --encryption-configuration '{"encryptionType":"KMS"}' \
+            --tags Key=sprinto,Value=prod Key=env,Value=prod
+
+          docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+
+          echo "Pushing Image to ECR..."
+          docker push ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+          echo "::group::Image Tag"
+          echo "${{ inputs.NOTE_TAG }}"
+          echo "::endgroup::"
