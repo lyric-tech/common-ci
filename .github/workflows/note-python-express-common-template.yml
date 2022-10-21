@@ -64,7 +64,8 @@ jobs:
 
           python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
           pwd 
-          ls -ltr
+          ls -ltr .lyric/build/artifact.zip
+          mv .lyric/build/artifact.zip .
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp .lyric/build/artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
 
