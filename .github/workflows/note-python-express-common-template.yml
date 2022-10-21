@@ -35,7 +35,7 @@ permissions:
 jobs:
   build_publish_artifact:
     name: Build and Publish Artifact
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     container:
       image: ghcr.io/lyric-tech/lyric-express-base:latest
       credentials:
