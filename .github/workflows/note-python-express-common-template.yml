@@ -101,6 +101,8 @@ jobs:
 
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/$NOTE_CI_TEMPLATE_VERSION/note/Dockerfile.base > Dockerfile.base
           
+          aws configure set region $AWS_REGION
+
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
           aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
