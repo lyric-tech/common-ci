@@ -45,12 +45,12 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Configure S3 AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ secrets.AWS_S3_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-          role-duration-seconds: 900
+#      - name: Configure S3 AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          role-to-assume: ${{ secrets.AWS_S3_ROLE_ARN }}
+#          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+#          role-duration-seconds: 900
 
       - name: Set note env variables
         env:
@@ -71,12 +71,12 @@ jobs:
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp .lyric/build/artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
 
-      - name: Configure ECR AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ secrets.AWS_ECR_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-          role-duration-seconds: 900
+#      - name: Configure ECR AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          role-to-assume: ${{ secrets.AWS_ECR_ROLE_ARN }}
+#          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+#          role-duration-seconds: 900
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -86,6 +86,7 @@ jobs:
         env:
           ORG_ID: ${{ secrets.ORG_ID }}
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
           ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
           NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
           LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
