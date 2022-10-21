@@ -12,6 +12,11 @@ on:
       NOTE_CI_TEMPLATE_VERSION:
         required: true
         type: string
+      url:
+        description: 'URL to create APP'
+        default: 'https://development.studio.lyric.tech'
+        required: true
+        type: string
     secrets:
       LYRIC_GITHUB_USERNAME:
         required: true
