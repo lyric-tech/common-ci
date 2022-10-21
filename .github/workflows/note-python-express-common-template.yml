@@ -12,11 +12,6 @@ on:
       NOTE_CI_TEMPLATE_VERSION:
         required: true
         type: string
-      url:
-        description: 'URL to create APP'
-        default: 'https://development.studio.lyric.tech'
-        required: true
-        type: string
     secrets:
       LYRIC_GITHUB_USERNAME:
         required: true
@@ -161,10 +156,10 @@ jobs:
       run: |
         echo "note_name=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//' | sed 's/-/ /')" >> $GITHUB_ENV
 
-    - name: Create App in ${{ inputs.url }}
+    - name: Create App in Development Server
       if: steps.build_publish_artifact.outcome == 'success'
       env:
-        url: ${{ inputs.url }}
+        url: "https://development.studio.lyric.tech"
         note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
       run: |
         cd lyric-express
