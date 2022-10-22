@@ -166,7 +166,7 @@ jobs:
         npm run lyric-express
         
     - name: App Link Artifact
-    - uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3
       with:
           name: App Link
           path: ./lyric-express/lyricExpress/url.txt
