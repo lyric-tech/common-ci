@@ -106,14 +106,14 @@ jobs:
             --encryption-configuration '{"encryptionType":"KMS"}' \
             --tags Key=sprinto,Value=prod Key=env,Value=prod
 
-          DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
+          docker pull $ECR_REGISTRY/$NOTE_IMAGE_REPO:$NOTE_TAG || true
+          
+          DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:$NOTE_TAG \
             --build-arg docker_registry=${ECR_REGISTRY} \
             -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:$NOTE_TAG .
 
-          docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:$NOTE_TAG
-
           echo "Pushing Image to ECR..."
-          docker push ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+          docker push ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:$NOTE_TAG
           echo "::group::Image Tag"
           echo "${{ inputs.NOTE_TAG }}"
           echo "::endgroup::"
