@@ -1,0 +1,172 @@
+name: CI for Python Note Developers
+
+on:
+  workflow_call:
+    inputs:
+      NOTE_TAG:
+        required: true
+        type: string
+      NOTE_REPOSITORY_NAME:
+        required: true
+        type: string
+      NOTE_CI_TEMPLATE_VERSION:
+        required: true
+        type: string
+    secrets:
+      LYRIC_GITHUB_USERNAME:
+        required: true
+      LYRIC_GITHUB_TOKEN:
+        required: true
+      ORG_ID:
+        required: true
+      AWS_DEFAULT_REGION:
+        required: true
+      AWS_ECR_ROLE_ARN:
+        required: true
+      AWS_S3_ROLE_ARN:
+        required: true
+      ARTIFACT_S3_PATH:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build_publish_artifact:
+    name: Build and Publish Artifact
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/lyric-tech/lyric-express-base:latest
+      credentials:
+         username: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+         password: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+    steps:
+      - name: Check out note code
+        uses: actions/checkout@v3
+          
+      - name: Check out lyric-express code
+        uses: actions/checkout@v3
+        with:
+          repository: lyric-tech/lyric-express
+          path: lyric-express
+          token: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+          
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+            
+      - name: Install dependencies
+        run: |
+          cp -rf dev_playground/sample_data/inputs/ ./lyric-express/lyricExpress/inputs/
+          cp .lyric/run_config/data_map.json ./lyric-express/lyricExpress/
+          cp .lyric/run_config/parameters.json ./lyric-express/lyricExpress/
+          cp .lyric/note_config.json ./lyric-express/lyricExpress/
+          cd lyric-express
+          npm install --frozen-lockfile --force
+
+      - name: Set note env variables
+        env:
+          NOTE_REPOSITORY_NAME: ${{ github.event.repository.name }}
+        run: |
+          echo "note_name=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//' | sed 's/-/ /')" >> $GITHUB_ENV
+
+      - name: Create App in Development Server
+        env:
+          url: "https://development.studio.lyric.tech"
+          note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
+        run: |
+          cd lyric-express
+          npm run lyric-express-ds
+
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Configure S3 AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_S3_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-duration-seconds: 900
+
+      - name: Set note env variables
+        env:
+          ORG_ID: ${{ secrets.ORG_ID }}
+          NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+        run: |
+          echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+          echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+
+      - name: Build artifact
+        env:
+          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+          ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
+        run: |
+          echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
+          python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
+
+          aws s3 cp .lyric/build/artifact.zip ${ARTIFACT_S3_PATH}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+
+      - name: Configure ECR AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ECR_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-duration-seconds: 900
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: image_publish
+        env:
+          ORG_ID: ${{ secrets.ORG_ID }}
+          NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+          AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+          ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+          NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
+          LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+          LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+        run: |
+          echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+          echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+          
+          echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+          echo "github credentials: $LYRIC_GITHUB_USERNAME, $LYRIC_GITHUB_TOKEN"
+
+          curl https://raw.githubusercontent.com/lyric-tech/common-ci/$NOTE_CI_TEMPLATE_VERSION/note/Dockerfile.base > Dockerfile.base
+          
+          aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
+            --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
+            --encryption-configuration '{"encryptionType":"KMS"}' \
+            --tags Key=sprinto,Value=prod Key=env,Value=prod
+
+          docker pull $ECR_REGISTRY/$NOTE_IMAGE_REPO:$NOTE_TAG || true
+          
+          DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:$NOTE_TAG \
+            --build-arg docker_registry=${ECR_REGISTRY} \
+            -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:$NOTE_TAG .
+
+          echo "Pushing Image to ECR..."
+          docker push ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:$NOTE_TAG
+          echo "::group::Image Tag"
+          echo "${{ inputs.NOTE_TAG }}"
+          echo "::endgroup::"
+      - name: Create App in Development Server
+        env:
+          url: "https://development.studio.lyric.tech"
+          note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
+        run: |
+          cd lyric-express
+          npm run lyric-express-note
+          
+      - name: App Link Artifact
+        uses: actions/upload-artifact@v3
+        with:
+            name: App Link
+            path: ./lyric-express/lyricExpress/url.txt
