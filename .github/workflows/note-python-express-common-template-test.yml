@@ -82,9 +82,6 @@ jobs:
           cd lyric-express
           npm run lyric-express-ds
 
-      - name: Check out code
-        uses: actions/checkout@v3
-
       - name: Configure S3 AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -157,6 +154,7 @@ jobs:
           echo "::group::Image Tag"
           echo "${{ inputs.NOTE_TAG }}"
           echo "::endgroup::"
+          
       - name: Create App in Development Server
         env:
           url: "https://development.studio.lyric.tech"
@@ -168,5 +166,5 @@ jobs:
       - name: App Link Artifact
         uses: actions/upload-artifact@v3
         with:
-            name: App Link
-            path: ./lyric-express/lyricExpress/url.txt
+          name: App Link
+          path: ./lyric-express/lyricExpress/url.txt
