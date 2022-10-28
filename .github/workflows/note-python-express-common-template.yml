@@ -76,7 +76,7 @@ jobs:
 
       - name: Create App in Development Server
         env:
-          url: "https://development.studio.lyric.tech"
+          url: "https://testing.studio.lyric.tech"
           note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
         run: |
           cd lyric-express
@@ -157,7 +157,7 @@ jobs:
           
       - name: Create App in Development Server
         env:
-          url: "https://development.studio.lyric.tech"
+          url: "https://testing.studio.lyric.tech"
           note_version: "${{ github.ref_name == 'main' && 'latest' || github.ref_name }}"
         run: |
           cd lyric-express
