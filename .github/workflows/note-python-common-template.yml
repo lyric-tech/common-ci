@@ -65,16 +65,23 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
         
       - name: Print output
-        run: |
-          echo "${{ steps.login-ecr.outputs.registry }}"
-          echo "${{ steps.login-ecr.outputs }}"
-          echo "${{ steps.login-ecr.outputs.docker_password_411564643746_dkr_ecr_us_east_1_amazonaws_com }}"
+
           
     outputs:
       registry: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.NOTE_REPOSITORY_NAME }}:$NOTE_IMAGE_TAG"
       docker_username: ${{ steps.login-ecr.outputs.docker_username_411564643746_dkr_ecr_us_east_1_amazonaws_com }} # Need to remove hard code here
       docker_password: ${{ steps.login-ecr.outputs.docker_password_411564643746_dkr_ecr_us_east_1_amazonaws_com }}
 
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: print output
+        run: |
+          echo "${{ needs.login-to-amazon-ecr.outputs.registry }}"
+          echo "${{ steps.login-ecr.outputs.registry }}"
+          echo "${{ needs.login-to-amazon-ecr.outputs.docker_username }}"
+          echo "${{ needs.login-to-amazon-ecr.outputs.docker_password }}"
+          
   build_artifact:
     needs: [login-to-amazon-ecr]
     name: Build Artifact
