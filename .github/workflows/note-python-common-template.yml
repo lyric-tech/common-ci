@@ -63,9 +63,6 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-        
-      - name: Print output
-
           
     outputs:
       registry: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.NOTE_REPOSITORY_NAME }}:$NOTE_IMAGE_TAG"
