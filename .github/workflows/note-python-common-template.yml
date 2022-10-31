@@ -70,6 +70,7 @@ jobs:
       docker_password: ${{ steps.login-ecr.outputs.docker_password_411564643746_dkr_ecr_us_east_1_amazonaws_com }}
 
   debug:
+    needs: [login-to-amazon-ecr]
     runs-on: ubuntu-latest
     steps:
       - name: print output
