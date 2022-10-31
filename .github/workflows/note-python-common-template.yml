@@ -36,19 +36,19 @@ permissions:
 
 jobs:
 
-  docker_publish:
-    uses: ./.github/workflows/note-docker-publish.yml
-    with:
-      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-      NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-    secrets:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
-      ORG_ID: ${{ secrets.ORG_ID }}
-      CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
-      LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-      LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+  #docker_publish:
+  #  uses: ./.github/workflows/note-docker-publish.yml
+  #  with:
+  #    NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+  #    NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+  #    NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
+  #  secrets:
+  #    AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  #    AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
+  #    ORG_ID: ${{ secrets.ORG_ID }}
+  #    CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+  #    LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+  #    LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
 
   login-to-amazon-ecr:
     runs-on: ubuntu-latest
@@ -75,7 +75,7 @@ jobs:
       docker_password: ${{ steps.login-ecr.outputs.docker_password_411564643746_dkr_ecr_us_east_1_amazonaws_com }}
 
   build_artifact:
-    needs: [login-to-amazon-ecr, docker_publish]
+    needs: [login-to-amazon-ecr]
     name: Build Artifact
     runs-on: ubuntu-latest
     container:
