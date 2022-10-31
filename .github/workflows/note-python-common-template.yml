@@ -66,7 +66,7 @@ jobs:
       - name: Print output
         run: |
           echo "${{ steps.login-ecr.outputs.registry }}"
-          echo "${{ steps.login-ecr.outputs.docker_username_411564643746_dkr_ecr_us_east_1_amazonaws_com }}"
+          echo "${{ steps.login-ecr.outputs }}"
           echo "${{ steps.login-ecr.outputs.docker_password_411564643746_dkr_ecr_us_east_1_amazonaws_com }}"
           
     outputs:
@@ -81,8 +81,8 @@ jobs:
     container:
       image: ${{ inputs.NOTE_REPOSITORY_NAME }}:${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}
       credentials:
-        username: AWS
-        password: ${{ needs.login-to-amazon-ecr.outputs.docker_password }}      
+        username: ${{ needs.login-to-amazon-ecr.outputs.docker_username }}
+        password: ${{ needs.login-to-amazon-ecr.outputs.docker_password }}    
     steps:
       - name: Set note env variables
         env:
