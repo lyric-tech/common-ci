@@ -79,7 +79,7 @@ jobs:
     name: Build Artifact
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.login-to-amazon-ecr.outputs.registry }}/${{ inputs.NOTE_REPOSITORY_NAME }}:${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}
+      image: 411564643746.dkr.ecr.us-east-1.amazonaws.com/lyric/note/aggregate_map_sc_data:latest
       credentials:
         username: ${{ needs.login-to-amazon-ecr.outputs.docker_username }}
         password: ${{ needs.login-to-amazon-ecr.outputs.docker_password }}    
