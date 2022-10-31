@@ -35,7 +35,6 @@ permissions:
   contents: read
 
 jobs:
-
   #docker_publish:
   #  uses: ./.github/workflows/note-docker-publish.yml
   #  with:
@@ -52,6 +51,8 @@ jobs:
 
   login-to-amazon-ecr:
     runs-on: ubuntu-latest
+    env: 
+      NOTE_IMAGE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -70,7 +71,7 @@ jobs:
           echo "${{ steps.login-ecr.outputs.docker_password_411564643746_dkr_ecr_us_east_1_amazonaws_com }}"
           
     outputs:
-      registry: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.NOTE_REPOSITORY_NAME }}:${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+      registry: "${{ steps.login-ecr.outputs.registry }}/${{ inputs.NOTE_REPOSITORY_NAME }}:$NOTE_IMAGE_TAG"
       docker_username: ${{ steps.login-ecr.outputs.docker_username_411564643746_dkr_ecr_us_east_1_amazonaws_com }} # Need to remove hard code here
       docker_password: ${{ steps.login-ecr.outputs.docker_password_411564643746_dkr_ecr_us_east_1_amazonaws_com }}
 
