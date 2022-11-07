@@ -39,6 +39,6 @@ runs:
       shell: bash
     - name: create tag
       run: |
-        git tag -a ${{ inputs.tag-name}} -m "Releasing version ${{ inputs.tag-name}}" -f
+        git tag -a ${{ inputs.tag-name}} -m "Promoting version:${{ inputs.ref }}, Releasing version:${{ inputs.tag-name}}" -f
         git push origin ${{ inputs.tag-name}}
       shell: bash
