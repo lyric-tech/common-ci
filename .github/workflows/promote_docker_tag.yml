@@ -39,10 +39,17 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        path: get_image_tag
+    
     - name: Set From Image Tag env variables
       env:
         TO_IMAGE_TAG: "${{ inputs.IMAGE_TAG }}" 
       run: |
+        cd get_image_tag
         commit_message=`git tag -l -n1 $TO_IMAGE_TAG --format='%(subject)' | awk -F ',' '{print $1}' | awk -F ':' '{print $2}'`
         git tag -l -n1
         echo "Commit Message == $commit_message" 
