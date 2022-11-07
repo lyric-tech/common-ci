@@ -41,6 +41,7 @@ jobs:
       env:
         TO_IMAGE_TAG: "${{ inputs.IMAGE_TAG }}" 
       run: |
+        cd ${{ inputs.ECR_REPOSITORY }}
         commit_message=`git tag -n1 $TO_IMAGE_TAG --format='%(subject)' | awk -F ',' '{print $1}' | awk -F ':' '{print $2}'`
         git tag -n1 $TO_IMAGE_TAG --format='%(subject)'
         echo "Commit Message == $commit_message" 
