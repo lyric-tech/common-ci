@@ -1,0 +1,40 @@
+name: 'Create docker tag'
+description: ''
+inputs:
+  aws_default_region:
+    description: 'AWS Default Region name'
+  ecr_repository:
+    description: 'ECR Repository name'
+  aws_role_arn:
+    description: 'AWS Role ARN'
+  from_tag:
+    description: 'Source Tag Name'
+  to_tag:
+    description: 'Destination Tag Name'
+
+runs:
+  using: "composite"
+  steps: 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ inputs.aws_role_arn }}
+        aws-region: ${{ inputs.aws_default_region }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+          
+    - name: Promote image to Amazon ECR for release
+      env:       
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ecr_repository }}
+      run: |
+        # Build a docker container and push it to ECR      
+        echo "Retagging image for promotion"
+        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }}
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }}
+        
+        echo "Pushing Release Image to ECR..."
+        docker push $inputs.ECR_REGISTRY/$.ECR_REPOSITORY:${{ inputs.to_tag }}
+      shell: bash
