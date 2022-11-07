@@ -36,5 +36,5 @@ runs:
         docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }}
         
         echo "Pushing Release Image to ECR..."
-        docker push $inputs.ECR_REGISTRY/$.ECR_REPOSITORY:${{ inputs.to_tag }}
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }}
       shell: bash
