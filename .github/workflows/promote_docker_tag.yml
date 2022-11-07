@@ -41,7 +41,7 @@ jobs:
       env:
         TO_IMAGE_TAG: "${{ inputs.IMAG_TAG }}" 
       run: |
-        commit_message=`git git tag -n1 $TO_IMAGE_TAG --format='%(subject)' | awk -F ',' '{print $1}' | awk -F ':' '{print $2}'`
+        commit_message=`git tag -n1 $TO_IMAGE_TAG --format='%(subject)' | awk -F ',' '{print $1}' | awk -F ':' '{print $2}'`
         echo "FROM_IMAGE_TAG=${echo $commit_message)" >> $GITHUB_ENV
           
     - name: Promote image to Amazon ECR for release
