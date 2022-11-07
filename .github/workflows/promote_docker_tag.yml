@@ -39,14 +39,14 @@ jobs:
 
     - name: Set From Image Tag env variables
       env:
-        TO_IMAGE_TAG: "${{ inputs.IMAG_TAG }}" 
+        TO_IMAGE_TAG: "${{ inputs.IMAGE_TAG }}" 
       run: |
         commit_message=`git tag -n1 $TO_IMAGE_TAG --format='%(subject)' | awk -F ',' '{print $1}' | awk -F ':' '{print $2}'`
         echo "FROM_IMAGE_TAG=${echo $commit_message)" >> $GITHUB_ENV
           
     - name: Promote image to Amazon ECR for release
       env:
-        TO_IMAGE_TAG: "${{ inputs.IMAG_TAG }}"        
+        TO_IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"        
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
       run: |
