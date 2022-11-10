@@ -32,9 +32,9 @@ runs:
       run: |
         # Build a docker container and push it to ECR      
         echo "Retagging image for promotion"
-        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }}
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }}
+        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} || true
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
         
         echo "Pushing Release Image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }}
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
       shell: bash
