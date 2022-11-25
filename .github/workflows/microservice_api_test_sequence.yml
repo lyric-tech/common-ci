@@ -16,7 +16,7 @@ on:
 jobs:
   api_test:
     name: API Test for developmnent2
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: Check out code
       uses: actions/checkout@v3
