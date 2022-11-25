@@ -12,27 +12,41 @@ jobs:
     name: NPM Install and Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+ #   - uses: actions/checkout@v3
 
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
+ # - name: Use Node.js 16.x
+ #     uses: actions/setup-node@v3
+ #     with:
+ #       node-version: 16.x
+ #       cache: 'npm'
+
+   # - name: Install dependencies
+   #   run: npm ci
+
+   # - name: Run Build
+   #   run: npm run build --if-present
+
+   # - name: Run Unit Test
+   #   run: npm test
+
+    - name: Post to a Slack channel
+      id: slack
+      uses: slackapi/slack-github-action@v1.23.0
       with:
-        node-version: 16.x
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Run Build
-      run: npm run build --if-present
-
-    - name: Run Unit Test
-      run: npm test
-      
-    - name: Slack Notification
-      uses: rtCamp/action-slack-notify@v2
+        channel-id: 'studio_build_notification'
+        payload: |
+          {
+            "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                }
+              }
+            ]
+          }
       env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_USERNAME: "lyric_admin"
-        SLACK_LINK_NAMES: true
-        SLACK_CHANNEL: "studio_build_notification"
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_SECRET }}
+
