@@ -12,41 +12,19 @@ jobs:
     name: NPM Install and Test
     runs-on: ubuntu-latest
     steps:
- #   - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
- # - name: Use Node.js 16.x
- #     uses: actions/setup-node@v3
- #     with:
- #       node-version: 16.x
- #       cache: 'npm'
-
-   # - name: Install dependencies
-   #   run: npm ci
-
-   # - name: Run Build
-   #   run: npm run build --if-present
-
-   # - name: Run Unit Test
-   #   run: npm test
-
-    - name: Post to a Slack channel
-      id: slack
-      uses: slackapi/slack-github-action@v1.23.0
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
       with:
-        channel-id: 'studio_build_notification'
-        payload: |
-          {
-            "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                }
-              }
-            ]
-          }
-      env:
-        SLACK_BOT_TOKEN: "xoxb-2593961215957-4225734133462-Sbd3ckFZIQasJqBcv9PR9uq8"
+        node-version: 16.x
+        cache: 'npm'
 
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Build
+      run: npm run build --if-present
+
+    - name: Run Unit Test
+      run: npm test
