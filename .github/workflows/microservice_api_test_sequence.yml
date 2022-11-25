@@ -26,13 +26,6 @@ jobs:
         token: ${{ secrets.REPO_GITHUB_TOKEN }}
         ref: ${{ inputs.BRANCH_NAME }}
 
-#    - name: Use Node.js 16.x
-#      uses: actions/setup-node@v3
-#      with:
-#        node-version: 16.x
-#        cache: 'npm'
-#        cache-dependency-path: '**/package-lock.json'
-
     - name: Install dependencies
       run: |
         cd ${{ inputs.BRANCH_NAME }}
@@ -41,7 +34,5 @@ jobs:
     - name: Run API Test
       run: |
         cd ${{ inputs.BRANCH_NAME }}
-        ls -ltr *
-        cd api
-        ls -ltr */**
+        sleep 10m
         npm run test-appservice
