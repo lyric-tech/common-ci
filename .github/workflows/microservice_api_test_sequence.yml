@@ -24,6 +24,7 @@ jobs:
         repository: ${{ inputs.REPO_NAME }}
         path: ${{ inputs.BRANCH_NAME }}
         token: ${{ secrets.REPO_GITHUB_TOKEN }}
+        ref: ${{ inputs.BRANCH_NAME }}
 
 #    - name: Use Node.js 16.x
 #      uses: actions/setup-node@v3
@@ -40,5 +41,4 @@ jobs:
     - name: Run API Test
       run: |
         cd ${{ inputs.BRANCH_NAME }}
-        sleep 10m
         npm run test-appservice
