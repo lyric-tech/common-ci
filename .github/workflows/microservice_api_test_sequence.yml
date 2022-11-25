@@ -25,12 +25,12 @@ jobs:
         path: ${{ inputs.BRANCH_NAME }}
         token: ${{ secrets.REPO_GITHUB_TOKEN }}
 
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
-        cache: 'npm'
-        cache-dependency-path: '**/package-lock.json'
+#    - name: Use Node.js 16.x
+#      uses: actions/setup-node@v3
+#      with:
+#        node-version: 16.x
+#        cache: 'npm'
+#        cache-dependency-path: '**/package-lock.json'
 
     - name: Install dependencies
       run: |
