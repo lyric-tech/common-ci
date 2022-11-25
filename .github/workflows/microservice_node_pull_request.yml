@@ -48,5 +48,5 @@ jobs:
             ]
           }
       env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_SECRET }}
+        SLACK_BOT_TOKEN: "xoxb-2593961215957-4225734133462-Sbd3ckFZIQasJqBcv9PR9uq8"
 
