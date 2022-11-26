@@ -57,7 +57,7 @@ jobs:
           apt-get update && \
           apt-get install -y --no-install-recommends git
           curl -sSL https://install.python-poetry.org | python -
-          pip install git+https://cb:sYxb63fXwm2BhB2MzFUy@gitlab.com/chainbrain/platform/chainbrain.git#ENG-477_sequence_improvements
+          pip install git+https://cb:sYxb63fXwm2BhB2MzFUy@gitlab.com/chainbrain/platform/chainbrain.git@ENG-477_sequence_improvements
           python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG --internal-name $NOTE_INTERNAL_NAME
           mv .lyric/build/artifact.zip .
 
