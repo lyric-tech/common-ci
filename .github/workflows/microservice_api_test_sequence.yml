@@ -36,3 +36,10 @@ jobs:
         cd ${{ inputs.BRANCH_NAME }}
         sleep 10m
         npm run test-appservice
+        mv ./html-report/report.html ./html-report/index.html
+
+    - name: Publish Test Report
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.LYRIC_TOKEN }}
+        publish_dir: ./html-report
