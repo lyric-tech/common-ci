@@ -46,7 +46,7 @@ jobs:
       run: |
         cd ${{ inputs.BRANCH_NAME }}
         mv ./reports/html-report/report.html ./reports/html-report/index.html
-        mv ./reports/html-report .
+        mv ./reports/html-report ../
         ls -ltr 
     
     - name: Setup Pages
