@@ -46,9 +46,16 @@ jobs:
       run: |
         cd ${{ inputs.BRANCH_NAME }}
         mv ./reports/html-report/report.html ./reports/html-report/index.html
-        
-    - name: Publish Test Report
-      uses: peaceiris/actions-gh-pages@v3
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v2
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
       with:
-        github_token: ${{ secrets.REPO_GITHUB_TOKEN }}
-        publish_dir: ./reports/html-report
+        # Upload entire repository
+          path: './reports/html-report'
+          
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
