@@ -32,12 +32,18 @@ jobs:
         npm install
 
     - name: Run API Test
+      continue-on-error: true
       run: |
         cd ${{ inputs.BRANCH_NAME }}
         sleep 10m
         npm run test-appservice
         mv ./html-report/report.html ./html-report/index.html
 
+    - name: Update index file
+      run: |
+        cd ${{ inputs.BRANCH_NAME }}
+        mv ./html-report/report.html ./html-report/index.html
+        
     - name: Publish Test Report
       uses: peaceiris/actions-gh-pages@v3
       with:
