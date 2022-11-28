@@ -13,6 +13,11 @@ on:
       REPO_GITHUB_TOKEN:
         required: true
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   api_test:
     name: API Test for developmnent2
@@ -45,5 +50,5 @@ jobs:
     - name: Publish Test Report
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.LYRIC_TOKEN }}
+        github_token: ${{ secrets.REPO_GITHUB_TOKEN }}
         publish_dir: ./reports/html-report
