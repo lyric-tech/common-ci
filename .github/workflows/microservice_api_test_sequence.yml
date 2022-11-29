@@ -37,7 +37,6 @@ jobs:
     - name: Run API Test
       continue-on-error: true
       run: |
-        cd ${{ inputs.BRANCH_NAME }}
         npm run test-appservice
 
     - name: Update index file
