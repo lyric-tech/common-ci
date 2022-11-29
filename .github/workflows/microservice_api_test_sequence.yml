@@ -56,3 +56,4 @@ jobs:
       uses: JamesIves/github-pages-deploy-action@v4
       with:
           folder: './reports/html-report'
+          token: ${{ secrets.REPO_GITHUB_TOKEN }}
