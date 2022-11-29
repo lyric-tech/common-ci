@@ -46,8 +46,7 @@ jobs:
       run: |
         cd ${{ inputs.BRANCH_NAME }}
         mv ./reports/html-report/report.html ./reports/html-report/index.html
-        mv ./reports/html-report ../
-        ls -ltr 
+        mv ./reports/html-report .
     
     - name: Setup Pages
       uses: actions/configure-pages@v2
@@ -61,4 +60,4 @@ jobs:
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
-          folder: html-report
+          folder: ${{ inputs.BRANCH_NAME }}/html-report
