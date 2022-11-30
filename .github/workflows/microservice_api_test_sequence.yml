@@ -30,7 +30,7 @@ jobs:
       with:
         repository: ${{ inputs.REPO_NAME }}
         token: ${{ secrets.REPO_GITHUB_TOKEN }}
-        ref: ${{ inputs.BRANCH_NAME }}
+        ref: ${{ secrets.BRANCH_NAME }}
 
     - name: Install dependencies
       run: |
