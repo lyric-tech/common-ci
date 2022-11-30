@@ -51,11 +51,9 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
-          path: './reports/html-report'
-          
+        name: github-pages
+        path: './reports/html-report'
+        
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-          folder: './reports/html-report'
-          token: ${{ secrets.REPO_GITHUB_TOKEN }}
+      uses: actions/deploy-pages@v1
