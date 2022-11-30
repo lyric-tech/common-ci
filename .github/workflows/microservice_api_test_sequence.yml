@@ -6,16 +6,15 @@ on:
       REPO_NAME:
         required: true
         type: string
-      BRANCH_NAME:
-        required: true
-        type: string
       SERVICE_NAME:
         required: true
         type: string
     secrets:
       REPO_GITHUB_TOKEN:
         required: true
-
+      BRANCH_NAME:
+        required: true
+        
 permissions:
   contents: read
   pages: write
