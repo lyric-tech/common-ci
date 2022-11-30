@@ -9,6 +9,9 @@ on:
       BRANCH_NAME:
         required: true
         type: string
+      SERVICE_NAME:
+        required: true
+        type: string
     secrets:
       REPO_GITHUB_TOKEN:
         required: true
@@ -37,7 +40,7 @@ jobs:
     - name: Run API Test
       continue-on-error: true
       run: |
-        npm run test-appservice
+        npm run test-${{ inputs.SERVICE_NAME }}
 
     - name: Update index file
       run: |
