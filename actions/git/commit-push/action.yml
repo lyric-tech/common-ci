@@ -18,7 +18,7 @@ inputs:
       Also when generating a new PAT, select the least scopes necessary.
       [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     default: ${{ github.token }}
-  package_version:
+  package-version:
     description: >
       Chainbrain Package which has to be used by Notes
     default: 1.0.0
@@ -40,6 +40,6 @@ runs:
 
     - name: commit and push
       run: |
-        git commit -am "Updating portry with Chainbrain Package version ${{ inputs.package_version }}"
+        git commit -am "Updating portry with Chainbrain Package version ${{ inputs.package-version }}"
         git push origin ${{ inputs.ref }}
       shell: bash
