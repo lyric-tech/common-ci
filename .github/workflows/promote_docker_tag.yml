@@ -1,4 +1,4 @@
-name: Build and publish
+name: Promote Docker Image
 
 on:
   workflow_call:

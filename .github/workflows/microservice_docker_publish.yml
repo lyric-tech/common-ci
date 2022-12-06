@@ -1,4 +1,4 @@
-name: Build and publish
+name: Microservice Docker Build and publish
 
 on:
   workflow_call:

@@ -1,4 +1,4 @@
-name: API Test
+name: Microservice API Test Sequence
 
 on:
   workflow_call:

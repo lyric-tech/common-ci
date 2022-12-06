@@ -1,4 +1,4 @@
-name: Node Pull Request Common File
+name: NPM Pull Request Common File
 
 on:
   workflow_call:
