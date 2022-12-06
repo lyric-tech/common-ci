@@ -4,7 +4,7 @@ inputs:
   repository:
     description: 'Repository name with owner'
     default: ${{ github.repository }}
-  branch:
+  ref:
     description: >
       The branch, tag or SHA to checkout. When checking out the repository that
       triggered a workflow, this defaults to the reference or SHA for that
@@ -41,5 +41,5 @@ runs:
     - name: commit and push
       run: |
         git commit -am "Updating portry with Chainbrain Package version ${{ input.package_version }}"
-        git push origin ${{ inputs.branch_name }}
+        git push origin ${{ inputs.ref }}
       shell: bash
