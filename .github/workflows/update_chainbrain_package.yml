@@ -16,11 +16,15 @@ on:
       token:
         required: true
       username:
+        required: true   
+      gitlab_username:
         required: true     
-     
+      gitlab_password:
+        required: true  
+
 permissions:
   id-token: write
-  contents: read 
+  contents: write 
   repository-projects: write
   
 jobs:
@@ -45,8 +49,8 @@ jobs:
         
     - name: Remove and Update Package
       run: |
-        echo "https://${{ secrets.username }}:${{ secrets.token }}@github.com" > $HOME/.git-credentials
-        cat $HOME/.git-credentials
+        echo "https://${{ secrets.username }}:${{ secrets.token }}@github.com" >> $HOME/.git-credentials
+        echo "https://${{ secrets.gitlab_username }}:${{ secrets.gitlab_password }}@gitlab.com" >> $HOME/.git-credentials
         git config --global credential.helper store
         poetry remove chainbrain
         poetry add git+https://gitlab.com/chainbrain/platform/chainbrain.git#${{ inputs.package-version }}
