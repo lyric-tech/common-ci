@@ -43,6 +43,7 @@ jobs:
         
     - name: Remove and Update Package
       run: |
+        export GH_TOKEN=${{ secrets.token }}
         poetry remove chainbrain
         poetry add git+https://gitlab.com/chainbrain/platform/chainbrain.git#${{ inputs.package-version }}
       shell: bash
