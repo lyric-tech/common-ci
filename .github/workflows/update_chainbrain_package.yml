@@ -45,6 +45,7 @@ jobs:
         
     - name: Remove and Update Package
       run: |
+        git config --global credential.helper store
         echo "https://${{ secrets.username }}:${{ secrets.token }}@github.com" >> $HOME/.git-credentials
         poetry remove chainbrain
         poetry add git+https://gitlab.com/chainbrain/platform/chainbrain.git#${{ inputs.package-version }}
