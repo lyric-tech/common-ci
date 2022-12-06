@@ -40,6 +40,6 @@ runs:
 
     - name: commit and push
       run: |
-        git commit -am "Updating portry with Chainbrain Package version ${{ input.package_version }}"
+        git commit -am "Updating portry with Chainbrain Package version ${{ inputs.package_version }}"
         git push origin ${{ inputs.ref }}
       shell: bash
