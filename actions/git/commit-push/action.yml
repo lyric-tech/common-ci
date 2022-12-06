@@ -1,45 +1,23 @@
 name: 'Commit and Push'
 description: 'Actions to commit and push changes to branch'
 inputs:
-  repository:
-    description: 'Repository name with owner'
-    default: ${{ github.repository }}
   ref:
     description: >
       The branch, tag or SHA to checkout. When checking out the repository that
       triggered a workflow, this defaults to the reference or SHA for that
       event.  Otherwise, uses the default branch.
-  token:
+  message:
     description: >
-      Personal access token (PAT) used to fetch the repository. The PAT is configured
-      with the local git config, which enables your scripts to run authenticated git
-      commands. The post-job step removes the PAT.
-      We recommend using a service account with the least permissions necessary.
-      Also when generating a new PAT, select the least scopes necessary.
-      [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
-    default: ${{ github.token }}
-  package-version:
-    description: >
-      Chainbrain Package which has to be used by Notes
-    default: 1.0.0
+      "Commit message for github to use when committing files"
+    default: "Updated files from Github Actions"
 
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
-      with:
-        repository: ${{ inputs.repository }}
-        ref: ${{ inputs.ref }}
-        token: ${{ inputs.token }}
-        
     - name: setup git config
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "admin@lyric.tech"
-      shell: bash
-
-    - name: commit and push
-      run: |
-        git commit -am "Updating portry with Chainbrain Package version ${{ inputs.package-version }}" --allow-empty
+        git commit -am "${{ inputs.message }}" --allow-empty
         git push origin ${{ inputs.ref }}
       shell: bash

@@ -1,0 +1,46 @@
+name: Update Notes Chainbrain Package
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        required: true
+        type: string
+      package-version:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+    secrets:
+      github_token:
+        required: true
+     
+permissions:
+  id-token: write
+  contents: read 
+  repository-projects: write
+  
+jobs:
+  update_package:
+    name: Update Notes with Chainbrain Package version ${{ inputs.package-version }}
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.branch }}
+        token: ${{ secrets.token }}
+    
+    - name: Remove and Update Package
+      run: |
+        poetry remove chainbrain
+        poetry add git+https://gitlab.com/chainbrain/platform/chainbrain.git#${{ inputs.package-version }}
+      shell: bash
+
+    - uses: lyric-tech/common-ci/actions/git/commit-push@develop
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.branch }}
+        token: ${{ secrets.token }}
+        message: "Updated to Chainbrain Package Version ${{ inputs.package-version }}"
