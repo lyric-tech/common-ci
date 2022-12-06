@@ -31,7 +31,16 @@ jobs:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.branch }}
         token: ${{ secrets.token }}
-    
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        pip install poetry
+        
     - name: Remove and Update Package
       run: |
         poetry remove chainbrain
