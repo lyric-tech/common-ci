@@ -30,7 +30,7 @@ permissions:
 jobs:
   update_package:
     name: Update Notes with Chainbrain Package version ${{ inputs.package-version }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v3
       with:
