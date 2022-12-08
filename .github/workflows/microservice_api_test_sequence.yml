@@ -32,6 +32,12 @@ jobs:
         token: ${{ secrets.REPO_GITHUB_TOKEN }}
         ref: ${{ secrets.BRANCH_NAME }}
 
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: 'npm'
+
     - name: Install dependencies
       run: |
         npm install
