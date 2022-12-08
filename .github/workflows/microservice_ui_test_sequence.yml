@@ -24,6 +24,8 @@ jobs:
   api_test:
     name: API Test for development2
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.27.0-focal
     steps:
     - name: Check out code
       uses: actions/checkout@v3
