@@ -23,7 +23,7 @@ permissions:
 jobs:
   api_test:
     name: API Test for development2
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     container:
       image: mcr.microsoft.com/playwright:v1.27.0-focal
     steps:
@@ -47,7 +47,6 @@ jobs:
     - name: Run API Test
       continue-on-error: true
       run: |
-        xvfb-run npx playwright test --grep @Sanity --workers 10 --project=chromium
         npm run test-${{ inputs.SERVICE_NAME }}
     
     - name: Setup Pages
