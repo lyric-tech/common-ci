@@ -47,7 +47,7 @@ jobs:
     - name: Run API Test
       continue-on-error: true
       run: |
-        cat playwright.config.js
+        xvfb-run npx playwright test --grep @Sanity --workers 10 --project=chromium
         npm run test-${{ inputs.SERVICE_NAME }}
     
     - name: Setup Pages
