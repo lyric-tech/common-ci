@@ -23,7 +23,7 @@ permissions:
 jobs:
   api_test:
     name: API Test for development2
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Check out code
       uses: actions/checkout@v3
