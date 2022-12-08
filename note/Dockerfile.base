@@ -12,7 +12,7 @@ RUN apt-get update && \
 
 # Final stage
 FROM ${docker_registry}/spark:latest
-ARG spark_uid=185
+ARG spark_uid=1001
 ARG private_repo_username
 ARG private_repo_token
 ARG github_username
