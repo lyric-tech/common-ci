@@ -45,7 +45,6 @@ jobs:
     - name: Run API Test
       continue-on-error: true
       run: |
-        sleep 10m
         npm run test-${{ inputs.SERVICE_NAME }}
 
    # - name: Update index file
