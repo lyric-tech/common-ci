@@ -42,9 +42,9 @@ jobs:
         sleep 10m
         npm run test-${{ inputs.SERVICE_NAME }}
 
-    - name: Update index file
-      run: |
-        mv ./reports/html-report/report.html ./reports/html-report/index.html
+   # - name: Update index file
+   #   run: |
+   #     mv ./reports/html-report/report.html ./reports/html-report/index.html
     
     - name: Setup Pages
       uses: actions/configure-pages@v2
