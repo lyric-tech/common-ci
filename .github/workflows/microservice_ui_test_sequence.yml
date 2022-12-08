@@ -47,6 +47,7 @@ jobs:
     - name: Run API Test
       continue-on-error: true
       run: |
+        cat playwright.config.js
         npm run test-${{ inputs.SERVICE_NAME }}
     
     - name: Setup Pages
