@@ -16,8 +16,6 @@ on:
         required: true
       CHAINBRAIN_TOKEN:
         required: true
-      ORG_ID:
-        required: true
       AWS_ROLE_ARN:
         required: true
       AWS_DEFAULT_REGION:
