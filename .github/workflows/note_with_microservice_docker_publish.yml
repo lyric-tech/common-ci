@@ -10,9 +10,17 @@ on:
         required: true
         type: string
     secrets:
-      AWS_DEFAULT_REGION:
+      LYRIC_GITHUB_USERNAME:
+        required: true
+      LYRIC_GITHUB_TOKEN:
+        required: true
+      CHAINBRAIN_TOKEN:
+        required: true
+      ORG_ID:
         required: true
       AWS_ROLE_ARN:
+        required: true
+      AWS_DEFAULT_REGION:
         required: true
      
 permissions:
