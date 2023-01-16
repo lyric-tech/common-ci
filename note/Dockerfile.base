@@ -4,7 +4,7 @@ ARG docker_registry
 #Stage 1
 FROM python:3.10-slim as requirements-stage
 WORKDIR /tmp
-COPY ./pyproject.toml ./poetry.lock /tmp/
+COPY ./pyproject.toml ./poetry.lock* /tmp/
 RUN apt-get update && \
     apt-get install -y git && \
     pip install poetry && \
