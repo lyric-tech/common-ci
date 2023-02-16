@@ -86,3 +86,42 @@ jobs:
         echo "::group::Image Tag"
         echo "${{ inputs.NOTE_TAG }}"
         echo "::endgroup::"
+
+#    - id: 'auth'
+#      uses: 'google-github-actions/auth@v1'
+#      with:
+#        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+#        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+#
+#    - name: Tag, and push image to Google GCR
+#      env:
+#        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+#        GCR_REGISTRY:  ${{ steps.GCR_REGISTRY }}
+#      run: |
+#        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+#        echo "Pushing Image to GCR..."
+#        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} ${GCR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        docker push ${GCR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        echo "::group::Image Tag"
+#        echo "${{ inputs.NOTE_TAG }}"
+#        echo "::endgroup::"
+#
+#    - name: Log into registry
+#      uses: docker/login-action@v1
+#      with:
+#        registry: ${{ secrets.ACR_ENDPOINT }}
+#        username: ${{ secrets.ACR_USERNAME }}
+#        password: ${{ secrets.ACR_PASSWORD }}
+#
+#    - name: Tag, and push image to Azure ACR
+#      env:
+#        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+#        ACR_REGISTRY:  ${{ steps.ACR_ENDPOINT }}
+#      run: |
+#        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+#        echo "Pushing Image to GCR..."
+#        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} ${ACR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        docker push ${ACR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        echo "::group::Image Tag"
+#        echo "${{ inputs.NOTE_TAG }}"
+#        echo "::endgroup::"
