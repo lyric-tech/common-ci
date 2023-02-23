@@ -30,6 +30,11 @@ on:
       ARTIFACT_S3_PATH:
         required: true
 
+permissions:
+  id-token: write
+  contents: write 
+  repository-projects: write
+  
 jobs:
   build_artifact:
     name: Build Artifact

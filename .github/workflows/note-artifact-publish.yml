@@ -16,10 +16,11 @@ on:
         required: true
       AWS_ROLE_ARN:
         required: true
-
+        
 permissions:
   id-token: write
-  contents: read
+  contents: write 
+  repository-projects: write
 
 jobs:
   publish_artifact:
