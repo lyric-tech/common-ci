@@ -17,17 +17,16 @@ ARG private_repo_username
 ARG private_repo_token
 ARG github_username
 ARG github_token
-WORKDIR /note
+USER ${spark_uid}
+WORKDIR /home/cbadmin
 
 COPY --from=requirements-stage /tmp/requirements.txt .
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store && \
-    pip install --no-cache-dir --upgrade -r /note/requirements.txt && \
+    pip install --no-cache-dir --upgrade -r /home/cbadmin/requirements.txt && \
     rm -rf ${HOME}/.git-credentials
 
 COPY . .
-RUN chown -R cbadmin:cbadmin /note/*
 
-USER ${spark_uid}
 CMD ["python3", "main.py"]
