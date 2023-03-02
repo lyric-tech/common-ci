@@ -19,6 +19,7 @@ ARG github_username
 ARG github_token
 USER ${spark_uid}
 WORKDIR /note
+
 COPY --from=requirements-stage /tmp/requirements.txt .
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
@@ -27,4 +28,5 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
     rm -rf ${HOME}/.git-credentials
 
 COPY . .
+RUN chown -R cbadmin:cbadmin /note/*
 CMD ["python3", "main.py"]
