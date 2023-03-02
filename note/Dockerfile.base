@@ -28,6 +28,6 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
     pip install --no-cache-dir --upgrade -r /home/cbadmin/requirements.txt && \
     rm -rf ${HOME}/.git-credentials
 
-COPY --chown=1001:1001 . .
+COPY . .
 
 CMD ["python3", "main.py"]
