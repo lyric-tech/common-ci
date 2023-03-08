@@ -1,0 +1,57 @@
+name: Promote Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      IMAGE_TAG:
+        required: true
+        type: string
+      ECR_REPOSITORY:
+        required: true
+        type: string
+    secrets:
+      AWS_DEFAULT_REGION:
+        required: true
+      AWS_ROLE_ARN:
+        required: true
+     
+permissions:
+  id-token: write
+  contents: write 
+  repository-projects: write
+  
+jobs:
+  build_and_publish:
+    name: Build and Publish
+    runs-on: self-hosted
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+          
+    - name: Promote image to Amazon ECR for release
+      env:
+        FROM_IMAGE_TAG: "testing"
+        TO_IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"        
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+      run: |
+        # Build a docker container and push it to ECR      
+        echo "Retagging image for promotion"
+        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$FROM_IMAGE_TAG
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$FROM_IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$TO_IMAGE_TAG
+        
+        echo "Pushing Release Image to ECR..."
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TO_IMAGE_TAG
+        echo "::group::Image Tag"
+        echo "$TO_IMAGE_TAG"
+        echo "::endgroup::"

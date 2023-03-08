@@ -1,0 +1,74 @@
+name: CI for Python Note Developers
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+      ECR_REPOSITORY:
+        required: true
+        type: string
+    secrets:
+      AWS_DEFAULT_REGION:
+        required: true
+      AWS_ECR_ROLE_ARN:
+        required: true
+      AWS_S3_ROLE_ARN:
+        required: true
+      ORG_NAME:
+        required: true
+      ARTIFACT_S3_PATH:
+        required: true
+
+permissions:
+  id-token: write
+  contents: write 
+  repository-projects: write
+     
+jobs:
+  build_artifact:
+      name: Build Artifact
+      runs-on: ubuntu-latest
+      container:
+        image: python:3.10-alpine
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v3
+
+        - name: Build artifact
+          run: |
+            apt-get install -y git
+            mkdir .lyric/build
+            jq --arg version $HOME --arg date "$(date +%FT%XZ)" \
+              -s '.[0] * { dataSchema: .[1] } * { parametersSchema: .[2] } * { workflowTemplate: .[3] } * { buildMetadata: { version: $version, build_time: $date } }' \
+              .lyric/note_config.json .lyric/data_schema.json .lyric/parameters_schema.json .lyric/workflow_template.json > .lyric/build/note-metadata.json
+            zip -urj artifact.zip .lyric/build/note-metadata.json
+
+        - name: Store artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: artifact
+            path: artifact.zip
+            retention-days: 7
+
+  docker_publish:
+    needs: build_artifact
+    uses: ./.github/workflows/note-docker-publish.yml
+    with:
+      image_tag: ${{ inputs.image_tag }}
+      ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+    secrets:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
+
+  publish_artifact:
+    needs: build_artifact
+    uses: ./.github/workflows/note-artifact-publish.yml
+    with:
+      build_version: ${{ inputs.image_tag }}
+      ARTIFACT_NAME: ${{ inputs.ECR_REPOSITORY }}
+    secrets:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
+      ORG_NAME: ${{ secrets.ORG_NAME }}

@@ -1,0 +1,128 @@
+name: Note Docker Build and publish docker
+
+on:
+  workflow_call:
+    inputs:
+      NOTE_TAG:
+        required: true
+        type: string
+      NOTE_REPOSITORY_NAME:
+        required: true
+        type: string
+      NOTE_CI_TEMPLATE_VERSION:
+        required: true
+        type: string
+    secrets:
+      LYRIC_GITHUB_USERNAME:
+        required: true
+      LYRIC_GITHUB_TOKEN:
+        required: true
+      CHAINBRAIN_TOKEN:
+        required: true
+      ORG_ID:
+        required: true
+      AWS_ROLE_ARN:
+        required: true
+      AWS_DEFAULT_REGION:
+        required: true
+
+permissions:
+  id-token: write
+  contents: write 
+  repository-projects: write
+
+jobs:
+  docker_publish:
+    name: Build and Publish Notes Docker Image
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+        role-duration-seconds: 900
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Set note env variables
+      env:
+        ORG_ID: ${{ secrets.ORG_ID }}
+        NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+      run: |
+        echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+        echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+        NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
+        LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+      run: |
+        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+        echo "github credentials: $LYRIC_GITHUB_USERNAME, $LYRIC_GITHUB_TOKEN"
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.base > Dockerfile.base
+        DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
+          --build-arg private_repo_username=chainbrain-token \
+          --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
+          --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
+          --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
+          --build-arg docker_registry=${ECR_REGISTRY} \
+          -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
+        aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
+          --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
+          --encryption-configuration '{"encryptionType":"KMS"}' \
+          --tags Key=sprinto,Value=prod Key=env,Value=prod
+        docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+
+        echo "Pushing Image to ECR..."
+        docker push ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+        echo "::group::Image Tag"
+        echo "${{ inputs.NOTE_TAG }}"
+        echo "::endgroup::"
+
+#    - id: 'auth'
+#      uses: 'google-github-actions/auth@v1'
+#      with:
+#        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+#        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+#
+#    - name: Tag, and push image to Google GCR
+#      env:
+#        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+#        GCR_REGISTRY:  ${{ steps.GCR_REGISTRY }}
+#      run: |
+#        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+#        echo "Pushing Image to GCR..."
+#        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} ${GCR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        docker push ${GCR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        echo "::group::Image Tag"
+#        echo "${{ inputs.NOTE_TAG }}"
+#        echo "::endgroup::"
+#
+#    - name: Log into registry
+#      uses: docker/login-action@v1
+#      with:
+#        registry: ${{ secrets.ACR_ENDPOINT }}
+#        username: ${{ secrets.ACR_USERNAME }}
+#        password: ${{ secrets.ACR_PASSWORD }}
+#
+#    - name: Tag, and push image to Azure ACR
+#      env:
+#        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+#        ACR_REGISTRY:  ${{ steps.ACR_ENDPOINT }}
+#      run: |
+#        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+#        echo "Pushing Image to GCR..."
+#        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} ${ACR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        docker push ${ACR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+#        echo "::group::Image Tag"
+#        echo "${{ inputs.NOTE_TAG }}"
+#        echo "::endgroup::"

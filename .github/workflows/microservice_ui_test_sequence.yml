@@ -1,0 +1,62 @@
+name: Microservice API Test Sequence with Scenarios
+
+on:
+  workflow_call:
+    inputs: 
+      REPO_NAME:
+        required: true
+        type: string
+      SERVICE_NAME:
+        required: true
+        type: string
+    secrets:
+      REPO_GITHUB_TOKEN:
+        required: true
+      BRANCH_NAME:
+        required: true
+        
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  repository-projects: write
+
+jobs:
+  api_test:
+    name: API Test for development2
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.REPO_NAME }}
+        token: ${{ secrets.REPO_GITHUB_TOKEN }}
+        ref: ${{ secrets.BRANCH_NAME }}
+
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Install dependencies
+      run: |
+        npm install
+        npx playwright install
+
+    - name: Run API Test
+      continue-on-error: true
+      run: |
+        npm run test-${{ inputs.SERVICE_NAME }}
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v2
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        name: github-pages
+        path: './reports/html-report'
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
