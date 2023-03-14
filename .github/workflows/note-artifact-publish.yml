@@ -76,5 +76,5 @@ jobs:
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
           glob: 'note-*.zip'
-          path: '$NOTE_NAME'
-          destination: 'lyric-store-lyric/${{ matrix.customer }}'
+          path: $NOTE_NAME
+          destination: 'lyric-store-lyric/lyric/'
