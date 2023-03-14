@@ -66,16 +66,8 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Rename Artifact for GCR
+      - name: Upload Artifact for GCR
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
-          mkdir ${NOTE_NAME}
-          cp artifact.zip ${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-          ls -ltr *
-
-      - name: Upload artifact to GCS
-        uses: 'google-github-actions/upload-cloud-storage@v1'
-        with:
-          path: ${NOTE_NAME}
-          destination: 'lyric-store-lyric/lyric/'
+          gsutil cp artifact.zip gs://lyric-store-lyric/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
