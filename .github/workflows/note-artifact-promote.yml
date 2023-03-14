@@ -76,18 +76,15 @@ jobs:
       - name: Configure GCP Credentials
         uses: 'google-github-actions/auth@v1'
         with:
+          token_format: 'access_token'
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Rename Artifact for GCR
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - name: Upload Artifact for GCR
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
-          mv artifact.zip ${NOTE_NAME}_${NOTE_TAG}.zip
-
-      - name: Upload artifact to GCS
-        uses: 'google-github-actions/upload-cloud-storage@v1'
-        with:
-          glob: 'note-*.zip'
-          path: '$NOTE_NAME'
-          destination: 'lyric-store-lyric/${{ matrix.customer }}'
+          gsutil cp artifact.zip gs://lyric-store-lyric/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip

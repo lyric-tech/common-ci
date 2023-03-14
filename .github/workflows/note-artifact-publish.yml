@@ -74,5 +74,4 @@ jobs:
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
-          gcloud info
           gsutil cp artifact.zip gs://lyric-store-lyric/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
