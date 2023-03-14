@@ -74,5 +74,5 @@ jobs:
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
-          gcloud config set auth/impersonate_service_account ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          gcloud info
           gsutil cp artifact.zip gs://lyric-store-lyric/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
