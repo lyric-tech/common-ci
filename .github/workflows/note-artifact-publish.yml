@@ -53,3 +53,15 @@ jobs:
         run: |
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+
+      - id: Configure GCP Credentials
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - id: Upload artifact to GCS
+        uses: 'google-github-actions/upload-cloud-storage@v1'
+        with:
+          path: ${NOTE_NAME}_${NOTE_TAG}.zip
+          destination: 'lyric-store-lyric//${NOTE_NAME}/'

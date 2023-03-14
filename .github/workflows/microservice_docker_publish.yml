@@ -59,3 +59,23 @@ jobs:
         echo "::group::Image Tag"
         echo "$IMAGE_TAG"
         echo "::endgroup::"
+
+    - id: Configure GCP Credentials
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+    - name: Tag, and push image to Google GCR
+      env:
+        IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
+        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        GCR_REGISTRY:  ${{ secrets.GCR_REGISTRY }}
+      run: |
+        echo "Pushing Image to GCR..."
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $GCR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $GCR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "::group::Image Tag"
+        echo "${{ inputs.IMAGE_TAG }}"
+        echo "::endgroup::"
