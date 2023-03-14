@@ -97,7 +97,7 @@ jobs:
 #      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
   publish_artifact:
-    needs: docker_publish
+#    needs: docker_publish
     uses: ./.github/workflows/note-artifact-publish.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
