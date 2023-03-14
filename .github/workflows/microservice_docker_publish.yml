@@ -14,7 +14,13 @@ on:
         required: true
       AWS_ROLE_ARN:
         required: true
-     
+      GCP_WORKLOAD_IDENTITY:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_PROJECT_ID:
+        required: true
+             
 permissions:
   id-token: write
   contents: write 
@@ -71,11 +77,11 @@ jobs:
         IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
-        GCR_REGISTRY:  ${{ secrets.GCR_REGISTRY }}
+        GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
       run: |
         echo "Pushing Image to GCR..."
         docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $GCR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push $GCR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push gcr.io/$GCP_PROJECT_ID/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::group::Image Tag"
         echo "${{ inputs.IMAGE_TAG }}"
         echo "::endgroup::"

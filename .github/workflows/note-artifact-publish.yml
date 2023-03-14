@@ -16,7 +16,13 @@ on:
         required: true
       AWS_ROLE_ARN:
         required: true
-        
+      GCP_WORKLOAD_IDENTITY:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_PROJECT_ID:
+        required: true
+                
 permissions:
   id-token: write
   contents: write 

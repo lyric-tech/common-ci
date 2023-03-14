@@ -25,7 +25,13 @@ on:
         required: true
       AWS_DEFAULT_REGION:
         required: true
-
+      GCP_WORKLOAD_IDENTITY:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_PROJECT_ID:
+        required: true
+        
 permissions:
   id-token: write
   contents: write 
@@ -97,12 +103,12 @@ jobs:
     - name: Tag, and push image to Google GCR
       env:
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        GCR_REGISTRY:  ${{ secrets.GCR_REGISTRY }}
+        GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         echo "Pushing Image to GCR..."
-        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} ${GCR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
-        docker push ${GCR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} gcr.io/$GCP_PROJECT_ID/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+        docker push gcr.io/$GCP_PROJECT_ID/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
         echo "::group::Image Tag"
         echo "${{ inputs.NOTE_TAG }}"
         echo "::endgroup::"
