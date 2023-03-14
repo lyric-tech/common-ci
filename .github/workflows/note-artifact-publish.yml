@@ -69,5 +69,5 @@ jobs:
       - name: Upload artifact to GCS
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
-          path: ${NOTE_NAME}_${NOTE_TAG}.zip
-          destination: 'lyric-store-lyric//${NOTE_NAME}/'
+          path: artifact.zip
+          destination: 'lyric-store-lyric/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip'
