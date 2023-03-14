@@ -78,23 +78,23 @@ jobs:
           path: artifact.zip
           retention-days: 7
 
-  docker_publish:
-    needs: build_artifact
-    uses: ./.github/workflows/note-docker-publish.yml
-    with:
-      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-      NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-    secrets:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
-      ORG_ID: ${{ secrets.ORG_ID }}
-      CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
-      LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-      LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
-      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+#  docker_publish:
+#    needs: build_artifact
+#    uses: ./.github/workflows/note-docker-publish.yml
+#    with:
+#      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+#      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+#      NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
+#    secrets:
+#      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+#      AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
+#      ORG_ID: ${{ secrets.ORG_ID }}
+#      CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+#      LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+#      LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+#      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+#      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+#      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
   publish_artifact:
     needs: docker_publish

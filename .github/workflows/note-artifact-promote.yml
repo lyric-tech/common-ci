@@ -83,10 +83,11 @@ jobs:
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
-          cp artifact.zip ${NOTE_NAME}_${NOTE_TAG}.zip
+          mv artifact.zip ${NOTE_NAME}_${NOTE_TAG}.zip
 
       - name: Upload artifact to GCS
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
-          path: $NOTE_NAME_$NOTE_TAG.zip
-          destination: 'lyric-store-lyric/${{ matrix.customer }}/$NOTE_NAME'
+          glob: 'note-*.zip'
+          path: '$NOTE_NAME'
+          destination: 'lyric-store-lyric/${{ matrix.customer }}'
