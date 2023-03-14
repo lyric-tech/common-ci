@@ -88,7 +88,7 @@ jobs:
         echo "${{ inputs.NOTE_TAG }}"
         echo "::endgroup::"
 
-    - id: Configure GCP Credentials
+    - name: Configure GCP Credentials
       uses: 'google-github-actions/auth@v1'
       with:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
