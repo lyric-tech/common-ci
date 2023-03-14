@@ -23,6 +23,7 @@ on:
       GCP_PROJECT_ID:
         required: true
 
+
 permissions:
   id-token: write
   contents: write 

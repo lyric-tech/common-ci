@@ -32,6 +32,7 @@ on:
       GCP_PROJECT_ID:
         required: true
         
+
 permissions:
   id-token: write
   contents: write 
@@ -93,6 +94,7 @@ jobs:
         echo "::group::Image Tag"
         echo "${{ inputs.NOTE_TAG }}"
         echo "::endgroup::"
+
 
     - name: 'Authenticate to Google Cloud'
       id: 'auth'

@@ -36,6 +36,7 @@ on:
       GCP_PROJECT_ID:
         required: true
 
+
 permissions:
   id-token: write
   contents: write 
@@ -95,6 +96,7 @@ jobs:
       GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
 
   publish_artifact:
     needs: docker_publish

@@ -23,6 +23,7 @@ on:
       GCP_PROJECT_ID:
         required: true
                 
+
 permissions:
   id-token: write
   contents: write 
@@ -59,7 +60,7 @@ jobs:
         run: |
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-
+          
       - name: Configure GCP Credentials
         uses: 'google-github-actions/auth@v1'
         with:
