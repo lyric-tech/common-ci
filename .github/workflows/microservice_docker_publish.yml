@@ -89,7 +89,7 @@ jobs:
         GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
       run: |
         echo "Pushing Image to GCR..."
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $GCR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG gcr.io/$GCP_PROJECT_ID/$ECR_REPOSITORY:$IMAGE_TAG
         docker push gcr.io/$GCP_PROJECT_ID/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::group::Image Tag"
         echo "${{ inputs.IMAGE_TAG }}"
