@@ -11,6 +11,12 @@ inputs:
     description: 'Source Tag Name'
   to_tag:
     description: 'Destination Tag Name'
+  gcp_project_id:
+    description: 'GCP Project ID'
+  gcp_workload_identity:
+    description: 'GCP Workload Identity'
+  gcp_service_account:
+    description: 'GCP Service Account'
 
 runs:
   using: "composite"
@@ -38,3 +44,31 @@ runs:
         echo "Pushing Release Image to ECR..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
       shell: bash
+
+    - name: 'Authenticate to Google Cloud'
+      env:
+        GCP_WORKLOAD_IDENTITY:  ${{ inputs.ecr_repository }}
+        GCP_SERVICE_ACCOUNT: ${{ inputs.ecr_repository }}
+      id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: ${{ secrets.gcp_workload_identity }}
+        service_account: ${{ secrets.gcp_service_account }}
+
+    - name: Login to GCR
+      uses: docker/login-action@v2
+      with:
+        registry: gcr.io
+        username: oauth2accesstoken
+        password: ${{ steps.auth.outputs.access_token }}
+
+    - name: Tag, and push image to Google GCR
+      env:
+        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ecr_repository }}
+        GCP_PROJECT_ID: ${{ inputs.gcp_project_id }}
+      run: |
+        echo "Pushing Image to GCR..."
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} gcr.io/$GCP_PROJECT_ID/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
+        docker push gcr.io/$GCP_PROJECT_ID/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
