@@ -44,7 +44,7 @@ permissions:
   
 jobs:
   promote_artifact:
-    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v23.') == true
+    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v23.') == true && (contains(${{ inputs.NOTE_REPOSITORY_NAME }}, 'datasource') == true || contains(${{ inputs.NOTE_REPOSITORY_NAME }}, 'transformer')
     runs-on: ubuntu-latest
     container:
       image: python:3.10-slim
