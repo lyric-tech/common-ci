@@ -46,6 +46,9 @@ runs:
       shell: bash
 
     - name: 'Authenticate to Google Cloud'
+      env:
+        GCP_WORKLOAD_IDENTITY:  ${{ inputs.gcp_workload_identity }}
+        GCP_SERVICE_ACCOUNT: ${{ inputs.gcp_service_account }}
       id: 'auth'
       uses: 'google-github-actions/auth@v1'
       with:
