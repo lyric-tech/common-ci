@@ -75,4 +75,4 @@ jobs:
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
-          gsutil cp artifact.zip gs://lyric-store-lyric/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+          gsutil cp artifact.zip gs://lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
