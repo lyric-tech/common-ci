@@ -28,7 +28,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
-          repository: ${{ inputs.REPO_NAME }}
+          repository: lyric-tech/${{ inputs.REPO_NAME }}
           token: ${{ secrets.REPO_GITHUB_TOKEN }}
           ref: ${{ inputs.BRANCH_NAME }}
 
