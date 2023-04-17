@@ -1,0 +1,57 @@
+name: Publish Package to Centralised Artiactory
+
+on:
+  workflow_call:
+    inputs: 
+      REPO_NAME:
+        required: true
+        type: string
+    secrets:
+      REPO_GITHUB_TOKEN:
+        required: true
+      BRANCH_NAME:
+        required: true
+      AWS_ROLE_ARN:
+        required: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  repository-projects: write
+
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.REPO_NAME }}
+          token: ${{ secrets.REPO_GITHUB_TOKEN }}
+          ref: ${{ secrets.BRANCH_NAME }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+          role-duration-seconds: 900
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Twine
+        run: |
+          pip install wheel twine
+          pip install poetry
+      - name: Build Package
+        run: |
+          poetry build
+      - name: Publish Package
+        run: |
+          aws codeartifact login --tool twine --domain lyric --repository lyric-artifact
+          echo "Publishing Package"
+          twine upload --repository codeartifact dist/* --verbose
