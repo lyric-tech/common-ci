@@ -11,7 +11,7 @@ RUN apt-get update && \
     poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 # Final stage
-FROM ${docker_registry}/note_base/pandas2:ENG-1651_pandas
+FROM ${docker_registry}/note-base/pandas2:ENG-1651_pandas
 ARG docker_uid=1001
 ARG private_repo_username
 ARG private_repo_token
