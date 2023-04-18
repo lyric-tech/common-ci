@@ -9,6 +9,9 @@ on:
       ECR_REPOSITORY:
         required: true
         type: string
+      BASE_DIRECTORY:
+        default: '.'
+        type: string
     secrets:
       AWS_DEFAULT_REGION:
         required: true
@@ -49,8 +52,10 @@ jobs:
         IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        BASE_DIRECTORY: ${{ inputs.BASE_DIRECTORY }}
       run: |
         # Build a docker container and push it to ECR 
+        cd $BASE_DIRECTORY
         aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository \
           --repository-name $ECR_REPOSITORY --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \

@@ -11,7 +11,7 @@ RUN apt-get update && \
     poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 # Final stage
-FROM ${docker_registry}/note_base/pandas1:latest
+FROM ${docker_registry}/note_base/pandas1:ENG-1651_pandas
 ARG docker_uid=1001
 ARG private_repo_username
 ARG private_repo_token
@@ -25,7 +25,7 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
 USER ${docker_uid}
 WORKDIR /home/cbadmin
 
-COPY --chown=1001:1001 --from=requirements-stage /tmp/requirements.txt .
+COPY --chown=${docker_uid}:${docker_uid} --from=requirements-stage /tmp/requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r /home/cbadmin/requirements.txt && \
     rm -rf ${HOME}/.git-credentials
