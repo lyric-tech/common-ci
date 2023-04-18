@@ -9,6 +9,9 @@ on:
       ECR_REPOSITORY:
         required: true
         type: string
+      BASE_DIRECTORY:
+        default: '.'
+        type: string
     secrets:
       LYRIC_GITHUB_USERNAME:
         required: true
@@ -58,8 +61,10 @@ jobs:
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
         LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+        BASE_DIRECTORY: ${{ inputs.BASE_DIRECTORY }}
       run: |
         # Build a docker container and push it to ECR 
+        cd $BASE_DIRECTORY
         aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository \
           --repository-name $ECR_REPOSITORY --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \

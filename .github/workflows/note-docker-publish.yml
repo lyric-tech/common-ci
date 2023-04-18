@@ -75,7 +75,10 @@ jobs:
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         echo "github credentials: $LYRIC_GITHUB_USERNAME, $LYRIC_GITHUB_TOKEN"
-        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.base > Dockerfile.base
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.base
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.spark.base
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas2.base > Dockerfile.pandas2.base
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas1.base > Dockerfile.pandas1.base
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
