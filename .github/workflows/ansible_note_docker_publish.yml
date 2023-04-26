@@ -1,4 +1,4 @@
-name: UI Microservice Docker Build and publish
+name: Microservice Docker Build and publish
 
 on:
   workflow_call:
@@ -9,10 +9,15 @@ on:
       ECR_REPOSITORY:
         required: true
         type: string
+      CHAINBRAIN_VERSION:
+        required: true
+        type: string
     secrets:
-      AWS_DEFAULT_REGION:
+      GITLAB_TOKEN:
         required: true
       AWS_ROLE_ARN:
+        required: true
+      AWS_DEFAULT_REGION:
         required: true
      
 permissions:
@@ -43,6 +48,8 @@ jobs:
         IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        CHAINBRAIN_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        CHAINBRAIN_VERSION: ${{ inputs.CHAINBRAIN_VERSION }}
       run: |
         # Build a docker container and push it to ECR 
         aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository \
@@ -50,17 +57,14 @@ jobs:
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
 
-        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:deps || true
-        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:builder || true
         docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG || true
-        docker build --build-arg DOCKER_REGISTRY=$ECR_REGISTRY --build-arg CI_PIPELINE_PROJECT=$ECR_REPOSITORY --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:deps -t $ECR_REGISTRY/$ECR_REPOSITORY:deps -f Dockerfile.deps .
-        docker build --build-arg DOCKER_REGISTRY=$ECR_REGISTRY --build-arg CI_PIPELINE_PROJECT=$ECR_REPOSITORY --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:deps --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:builder -t $ECR_REGISTRY/$ECR_REPOSITORY:builder -f Dockerfile.builder .
-        docker build --build-arg DOCKER_REGISTRY=$ECR_REGISTRY --build-arg CI_PIPELINE_PROJECT=$ECR_REPOSITORY --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:deps --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:builder --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile.runner .
-        
-        echo "Pushing image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:deps
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:builder
+        DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          --build-arg gitlab_token=${CHAINBRAIN_TOKEN} \
+          --build-arg chainbrain_version=${CHAINBRAIN_VERSION} \
+          --build-arg docker_registry=${ECR_REGISTRY} \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
+        echo "Pushing Image to ECR..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::group::Image Tag"
         echo "$IMAGE_TAG"

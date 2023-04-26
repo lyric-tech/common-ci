@@ -1,4 +1,4 @@
-name: Publish artifact
+name: Promote artifact to Customer Environment
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ on:
         required: true
       GCP_PROJECT_ID:
         required: true
-                
+
 
 permissions:
   id-token: write
@@ -30,9 +30,22 @@ permissions:
   repository-projects: write
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.setVariables.outputs.matrix }}
+    steps:
+      - id: setVariables
+        run: |
+          echo "::set-output name=matrix::${{ vars.CUSTOMER_ENVS }}"
+
   publish_artifact:
     name: Publish Artifact to S3
+    needs: setup
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        customer: ${{fromJson(needs.setup.outputs.matrix)}}
     steps:
       - name: Fetch artifact
         uses: actions/download-artifact@v3
@@ -52,15 +65,15 @@ jobs:
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
-      - name: Upload artifact to S3
+      - name: Upload artifact to S3 to Customer Path
         env:
           ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
           aws configure set region $AWS_DEFAULT_REGION
-          aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-          
+          aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+
       - name: Configure GCP Credentials
         uses: 'google-github-actions/auth@v1'
         with:
@@ -75,4 +88,4 @@ jobs:
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
-          gsutil cp artifact.zip gs://lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+          gsutil cp artifact.zip gs://lyric-store-lyric/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip

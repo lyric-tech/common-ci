@@ -29,7 +29,19 @@ on:
         required: true
       ARTIFACT_S3_PATH:
         required: true
+      GCP_WORKLOAD_IDENTITY:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_PROJECT_ID:
+        required: true
 
+
+permissions:
+  id-token: write
+  contents: write 
+  repository-projects: write
+  
 jobs:
   build_artifact:
     name: Build Artifact
@@ -81,6 +93,10 @@ jobs:
       CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
       LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
       LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
 
   publish_artifact:
     needs: docker_publish
@@ -92,3 +108,21 @@ jobs:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
       ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
+      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+  promote_artifact:
+    needs: publish_artifact
+    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v') == true && (contains(github.event.repository.name, 'datasource') == true || contains(github.event.repository.name, 'transformer'))
+    uses: ./.github/workflows/note-artifact-promote.yml
+    with:
+      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+    secrets:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
+      ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
+      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}

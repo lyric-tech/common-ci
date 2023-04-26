@@ -10,9 +10,15 @@ on:
         required: true
         type: string
     secrets:
-      AWS_DEFAULT_REGION:
+      LYRIC_GITHUB_USERNAME:
+        required: true
+      LYRIC_GITHUB_TOKEN:
+        required: true
+      CHAINBRAIN_TOKEN:
         required: true
       AWS_ROLE_ARN:
+        required: true
+      AWS_DEFAULT_REGION:
         required: true
       GCP_WORKLOAD_IDENTITY:
         required: true
@@ -20,7 +26,7 @@ on:
         required: true
       GCP_PROJECT_ID:
         required: true
-             
+        
 permissions:
   id-token: write
   contents: write 
@@ -49,6 +55,9 @@ jobs:
         IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+        LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
       run: |
         # Build a docker container and push it to ECR 
         aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository \
@@ -57,14 +66,20 @@ jobs:
           --tags Key=sprinto,Value=prod Key=env,Value=prod
 
         docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG || true
-        #DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        DOCKER_BUILDKIT=1 docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          --build-arg private_repo_username=chainbrain-token \
+          --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
+          --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
+          --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
+          --build-arg docker_registry=${ECR_REGISTRY} \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
         echo "Pushing Image to ECR..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::group::Image Tag"
         echo "$IMAGE_TAG"
         echo "::endgroup::"
+        
 
     - name: 'Authenticate to Google Cloud'
       id: 'auth'

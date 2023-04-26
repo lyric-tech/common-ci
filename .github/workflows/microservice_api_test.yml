@@ -1,4 +1,4 @@
-name: API Test
+name: Microservice API Test Sequence
 
 on:
   workflow_call:
@@ -17,6 +17,11 @@ on:
         required: true
       REPO_GITHUB_TOKEN:
         required: true
+        
+permissions:
+  id-token: write
+  contents: write 
+  repository-projects: write
 
 jobs:
   api_test:

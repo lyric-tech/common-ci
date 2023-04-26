@@ -28,7 +28,8 @@ on:
 
 permissions:
   id-token: write
-  contents: read 
+  contents: write 
+  repository-projects: write
   
 jobs:
   kube_deploy:
