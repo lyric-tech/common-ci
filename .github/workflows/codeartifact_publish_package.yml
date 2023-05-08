@@ -35,15 +35,6 @@ jobs:
           token: ${{ secrets.REPO_GITHUB_TOKEN }}
           ref: ${{ inputs.BRANCH_NAME }}
 
-      - name: Check Version in poetry file
-        run: |
-          fileVersion=`poetry version | awk '{print $2}'` 
-          echo "File Version is $fileVersion"
-          if [ "$fileVersion" != "${{ inputs.BRANCH_NAME }}" ]; then
-            echo "Version mismatch in pyproject.toml"
-            exit 1
-          fi
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -61,6 +52,15 @@ jobs:
           pip install wheel twine
           pip install poetry
 
+      - name: Check Version in poetry file
+        run: |
+          fileVersion=`poetry version | awk '{print $2}'` 
+          echo "File Version is $fileVersion"
+          if [ "$fileVersion" != "${{ inputs.BRANCH_NAME }}" ]; then
+            echo "Version mismatch in pyproject.toml"
+            exit 1
+          fi
+          
       - name: Setting Version
         run: |
           poetry version ${{ inputs.PACKAGE_VERSION }}
