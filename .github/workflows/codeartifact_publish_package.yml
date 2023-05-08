@@ -37,7 +37,7 @@ jobs:
 
       - name: Check Version in poetry file
         run: |
-          fileVersion=`cat pyproject.toml | grep version| grep -v extras | awk '{print $3}'`        
+          fileVersion=`poetry version | awk '{print $2}`        
           if [ $fileVersion -ne ${{ inputs.BRANCH_NAME }} ]; then
             echo "Version mismatch in pyproject.toml"
             exit 1
@@ -71,7 +71,7 @@ jobs:
       - name: Publish Package
         run: |
           aws codeartifact login --tool twine --domain lyric --repository lyric-artifact
-          aws codeartifact delete-package-versions --domain lyric --domain-owner 111122223333 \
+          aws codeartifact delete-package-versions --domain lyric --domain-owner 411564643746 \
             --repository lyric-artifact --format pypi \
             --package ${{ inputs.REPO_NAME }} --versions ${{ inputs.BRANCH_NAME }} | true
           echo "Publishing Package"
