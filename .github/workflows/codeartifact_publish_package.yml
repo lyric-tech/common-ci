@@ -37,7 +37,7 @@ jobs:
 
       - name: Check Version in poetry file
         run: |
-          fileVersion=`cat pyproject.toml | grep version`         
+          fileVersion=`cat pyproject.toml | grep version| grep -v extras | awk '{print $3}'`        
           if [ $fileVersion -ne ${{ inputs.BRANCH_NAME }} ]; then
             echo "Version mismatch in pyproject.toml"
             exit 1
