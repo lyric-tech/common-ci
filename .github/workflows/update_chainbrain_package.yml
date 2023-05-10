@@ -29,6 +29,7 @@ permissions:
   
 jobs:
   update_package:
+    runs-on: ubuntu-latest
     name: Update Notes with Chainbrain Package version ${{ inputs.package-version }}
     steps:
     - uses: actions/checkout@v3
