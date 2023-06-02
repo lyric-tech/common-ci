@@ -11,7 +11,7 @@ RUN apt-get update && \
     poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 # Final stage
-FROM ${docker_registry}/spark:azure
+FROM ${docker_registry}/spark:ENG-1883
 ARG spark_uid=1001
 ARG private_repo_username
 ARG private_repo_token
