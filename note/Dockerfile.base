@@ -22,7 +22,6 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store
     
-USER ${spark_uid}
 WORKDIR /home/cbadmin
 
 COPY --chown=1001:1001 --from=requirements-stage /tmp/requirements.txt .
