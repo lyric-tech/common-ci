@@ -13,6 +13,12 @@ on:
         default: '.'
         type: string
     secrets:
+      LYRIC_GITHUB_USERNAME:
+        required: false
+      LYRIC_GITHUB_TOKEN:
+        required: false
+      CHAINBRAIN_TOKEN:
+        required: false
       AWS_DEFAULT_REGION:
         required: true
       AWS_ROLE_ARN:
@@ -53,11 +59,19 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
         BASE_DIRECTORY: ${{ inputs.BASE_DIRECTORY }}
+        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+        LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+
       run: |
         # Build a docker container and push it to ECR 
         cd $BASE_DIRECTORY
         aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository \
           --repository-name $ECR_REPOSITORY --image-scanning-configuration scanOnPush=true \
+          --build-arg private_repo_username=chainbrain-token \
+          --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
+          --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
+          --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
 
