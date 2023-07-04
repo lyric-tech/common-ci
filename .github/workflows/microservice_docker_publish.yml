@@ -63,7 +63,6 @@ jobs:
           type=ref,event=branch
           type=ref,event=tag
           type=ref,event=pr
-          type=sha
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -117,7 +116,6 @@ jobs:
           type=ref,event=branch
           type=ref,event=tag
           type=ref,event=pr
-          type=sha
 
     - name: Build and push docker to GCR
       uses: docker/build-push-action@v2
