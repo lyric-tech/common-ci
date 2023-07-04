@@ -30,7 +30,7 @@ permissions:
   repository-projects: write
 
 env:
-  TARGET_PLATFORMS: linux/amd64,linux/arm64
+  TARGET_PLATFORMS: linux/amd64,linux/amd64/v2,linux/arm64,linux/arm/v7,linux/arm/v6
   IMAGE_NAME: ${{ inputs.ECR_REPOSITORY }}
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Docker meta
+    - name: Docker meta for ECR
       id: meta
       env:
         REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
@@ -81,12 +81,13 @@ jobs:
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
 
-    - name: Build and push docker
+    - name: Build and push docker to AWS ECR
       uses: docker/build-push-action@v2
       with:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -105,7 +106,7 @@ jobs:
         username: oauth2accesstoken
         password: ${{ steps.auth.outputs.access_token }}
 
-    - name: Docker meta
+    - name: Docker meta for GCR
       id: meta-gcr
       uses: docker/metadata-action@v3
       with:
@@ -116,11 +117,12 @@ jobs:
           type=ref,event=tag
           type=ref,event=pr
 
-    - name: Build and push docker to GCR
+    - name: Build and push docker to GCP GCR
       uses: docker/build-push-action@v2
       with:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-gcr.outputs.tags }}
         labels: ${{ steps.meta-gcr.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
