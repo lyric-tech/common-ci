@@ -102,6 +102,7 @@ jobs:
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
           ls -ltr
+          env
           pwd
           cat Dockerfile.base
 
@@ -112,7 +113,7 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ env.TARGET_PLATFORMS }}
-        build-contexts: name=Dockerfile,path=.
+        file: /home/runner/work/note-allocate-demand-fulfillment/note-allocate-demand-fulfillment/Dockerfile
         build-args: |
             private_repo_username=chainbrain-token
             private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
