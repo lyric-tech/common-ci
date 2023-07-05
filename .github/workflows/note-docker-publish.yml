@@ -102,6 +102,7 @@ jobs:
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
           ls -ltr
+          pwd
           cat Dockerfile.base
 
     - name: Build and push docker to AWS ECR
@@ -111,6 +112,8 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ env.TARGET_PLATFORMS }}
+        context: .
+        build-contexts: .
         build-args: |
             private_repo_username=chainbrain-token
             private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
