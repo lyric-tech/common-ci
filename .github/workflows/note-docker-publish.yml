@@ -89,6 +89,8 @@ jobs:
       uses: docker/setup-buildx-action@v2
 
     - name: Create Amazon ECR repository
+      env:
+        NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
       run: |
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.base
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.spark.base
