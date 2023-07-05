@@ -108,6 +108,7 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ env.TARGET_PLATFORMS }}
+        file: Dockerfile.base
         build-args: |
             private_repo_username=chainbrain-token
             private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
