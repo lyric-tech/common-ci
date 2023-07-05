@@ -99,7 +99,7 @@ jobs:
           --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
-
+          ls -ltr
 
     - name: Build and push docker to AWS ECR
       uses: docker/build-push-action@v2
