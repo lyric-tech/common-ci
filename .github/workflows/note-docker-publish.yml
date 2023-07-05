@@ -84,14 +84,14 @@ jobs:
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas2.base > Dockerfile.pandas2.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas1.base > Dockerfile.pandas1.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.polars.base > Dockerfile.polars.base
-        DOCKER_BUILDKIT=1 docker build --platform=linux/amd64,linux/arm64 --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
+        DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64,linux/arm64 --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
           --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
           --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
           --build-arg docker_registry=${ECR_REGISTRY} \
           -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
-
+        docker images
         docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
 
         echo "Pushing Image to ECR..."
