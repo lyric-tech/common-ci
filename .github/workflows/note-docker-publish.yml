@@ -65,12 +65,6 @@ jobs:
         echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
         echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-  
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
@@ -79,24 +73,25 @@ jobs:
         LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
         LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
       run: |
-        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
+        aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
+        --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
+        --encryption-configuration '{"encryptionType":"KMS"}' \
+        --tags Key=sprinto,Value=prod Key=env,Value=prod
+          echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         echo "github credentials: $LYRIC_GITHUB_USERNAME, $LYRIC_GITHUB_TOKEN"
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.spark.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas2.base > Dockerfile.pandas2.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas1.base > Dockerfile.pandas1.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.polars.base > Dockerfile.polars.base
-        DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64,linux/arm64 --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
+        DOCKER_BUILDKIT=1 docker build --platform=linux/amd64,linux/arm64 --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
           --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
           --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
           --build-arg docker_registry=${ECR_REGISTRY} \
           -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
-        aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
-          --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
-          --encryption-configuration '{"encryptionType":"KMS"}' \
-          --tags Key=sprinto,Value=prod Key=env,Value=prod
+
         docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
 
         echo "Pushing Image to ECR..."
