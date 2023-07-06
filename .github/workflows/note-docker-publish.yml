@@ -117,8 +117,6 @@ jobs:
             github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
             github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
             docker_registry=${{ steps.login-ecr.outputs.registry }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
 
     - name: 'Authenticate to Google Cloud'
       id: 'auth'
