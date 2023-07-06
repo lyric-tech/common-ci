@@ -84,20 +84,6 @@ jobs:
           ls -ltr
           cat Dockerfile
 
-    - name: Docker meta
-      id: meta
-      env:
-        REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        NOTE_IMAGE_REPO: ${{ env.NOTE_IMAGE_REPO }}
-      uses: docker/metadata-action@v3
-      with:
-        images: ${{ steps.login-ecr.outputs.registry }}/${{ env.NOTE_IMAGE_REPO }}
-        tags: |
-          type=schedule
-          type=ref,event=branch
-          type=ref,event=tag
-          type=ref,event=pr
-
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
   
@@ -108,8 +94,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ env.TARGET_PLATFORMS }}
         build-args: |
             private_repo_username=chainbrain-token
