@@ -18,7 +18,6 @@ ARG private_repo_token
 ARG github_username
 ARG github_token
 
-RUN apt-get install build-essential libssl-dev libffi-dev python-dev -y
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store
