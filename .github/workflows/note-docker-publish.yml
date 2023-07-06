@@ -82,17 +82,11 @@ jobs:
           type=ref,event=tag
           type=ref,event=pr
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
     - name: Create Amazon ECR repository
       env:
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
       run: |
-          curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.base
+          curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.spark.base
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas2.base > Dockerfile.pandas2.base
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas1.base > Dockerfile.pandas1.base
@@ -101,10 +95,14 @@ jobs:
           --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
+          ls -ltr
+          cat Dockerfile
 
-    - name: Combine Dockerfile.base and Dockerfile
-      run: |
-        cat Dockerfile.base > Dockerfile
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+  
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
     - name: Build and push docker to AWS ECR
       uses: docker/build-push-action@v2
