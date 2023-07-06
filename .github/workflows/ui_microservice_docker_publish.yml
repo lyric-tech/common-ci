@@ -102,6 +102,7 @@ jobs:
       with:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-deps.outputs.tags }}
+        platforms: ${{ env.TARGET_PLATFORMS }}        
         labels: ${{ steps.meta-deps.outputs.labels }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}
@@ -115,6 +116,7 @@ jobs:
       with:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-builder.outputs.tags }}
+        platforms: ${{ env.TARGET_PLATFORMS }}        
         labels: ${{ steps.meta-builder.outputs.labels }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}
@@ -128,6 +130,7 @@ jobs:
       with:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
+        platforms: ${{ env.TARGET_PLATFORMS }}        
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}
@@ -167,6 +170,7 @@ jobs:
       with:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-gcr.outputs.tags }}
+        platforms: ${{ env.TARGET_PLATFORMS }}        
         labels: ${{ steps.meta-gcr.outputs.labels }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}

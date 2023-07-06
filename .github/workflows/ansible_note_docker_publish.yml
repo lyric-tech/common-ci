@@ -89,6 +89,7 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}        
         build-args: |
             gitlab_token=${{ secrets.GITLAB_TOKEN }}
             chainbrain_version=${{ inputs.CHAINBRAIN_VERSION }}
@@ -128,6 +129,7 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-gcr.outputs.tags }}
         labels: ${{ steps.meta-gcr.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}        
         build-args: |
             gitlab_token=${{ secrets.GITLAB_TOKEN }}
             chainbrain_version=${{ inputs.CHAINBRAIN_VERSION }}
