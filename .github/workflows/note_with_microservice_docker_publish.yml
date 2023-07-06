@@ -93,7 +93,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        platforms: ${{ env.TARGET_PLATFORMS }}
         build-args: |
             private_repo_username=chainbrain-token
             private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
@@ -135,7 +134,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-gcr.outputs.tags }}
         labels: ${{ steps.meta-gcr.outputs.labels }}
-        platforms: ${{ env.TARGET_PLATFORMS }}
         build-args: |
             private_repo_username=chainbrain-token
             private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}

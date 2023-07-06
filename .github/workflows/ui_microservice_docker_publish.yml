@@ -103,7 +103,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-deps.outputs.tags }}
         labels: ${{ steps.meta-deps.outputs.labels }}
-        platforms: ${{ env.TARGET_PLATFORMS }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}
             DOCKER_REGISTRY=${{ steps.login-ecr.outputs.registry }}    
@@ -117,7 +116,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-builder.outputs.tags }}
         labels: ${{ steps.meta-builder.outputs.labels }}
-        platforms: ${{ env.TARGET_PLATFORMS }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}
             DOCKER_REGISTRY=${{ steps.login-ecr.outputs.registry }}
@@ -131,7 +129,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        platforms: ${{ env.TARGET_PLATFORMS }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}
             DOCKER_REGISTRY=${{ steps.login-ecr.outputs.registry }}
@@ -171,7 +168,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-gcr.outputs.tags }}
         labels: ${{ steps.meta-gcr.outputs.labels }}
-        platforms: ${{ env.TARGET_PLATFORMS }}
         build-args: |
             CI_PIPELINE_PROJECT=${{ env.IMAGE_NAME }}
             DOCKER_REGISTRY=${{ steps.login-ecr.outputs.registry }}    
