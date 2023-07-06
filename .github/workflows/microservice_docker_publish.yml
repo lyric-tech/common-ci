@@ -30,7 +30,7 @@ permissions:
   repository-projects: write
 
 env:
-  TARGET_PLATFORMS: linux/amd64,linux/arm64
+  TARGET_PLATFORMS: linux/arm64,linux/amd64,linux/amd64/v2,linux/arm/v7,linux/arm/v6
   IMAGE_NAME: ${{ inputs.ECR_REPOSITORY }}
 
 jobs:
@@ -87,6 +87,7 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -122,5 +123,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta-gcr.outputs.tags }}
         labels: ${{ steps.meta-gcr.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
