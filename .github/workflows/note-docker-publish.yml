@@ -68,20 +68,6 @@ jobs:
         echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
         echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
-    - name: Docker meta
-      id: meta
-      env:
-        REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        NOTE_IMAGE_REPO: ${{ env.NOTE_IMAGE_REPO }}
-      uses: docker/metadata-action@v3
-      with:
-        images: ${{ steps.login-ecr.outputs.registry }}/${{ env.NOTE_IMAGE_REPO }}
-        tags: |
-          type=schedule
-          type=ref,event=branch
-          type=ref,event=tag
-          type=ref,event=pr
-
     - name: Create Amazon ECR repository
       env:
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
@@ -97,6 +83,20 @@ jobs:
           --tags Key=sprinto,Value=prod Key=env,Value=prod
           ls -ltr
           cat Dockerfile
+
+    - name: Docker meta
+      id: meta
+      env:
+        REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        NOTE_IMAGE_REPO: ${{ env.NOTE_IMAGE_REPO }}
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ steps.login-ecr.outputs.registry }}/${{ env.NOTE_IMAGE_REPO }}
+        tags: |
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2

@@ -43,44 +43,44 @@ permissions:
   repository-projects: write
   
 jobs:
-  build_artifact:
-    name: Build Artifact
-    runs-on: ubuntu-latest
-    container:
-      image: python:3.10-slim
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set note env variables
-        env:
-          ORG_ID: ${{ secrets.ORG_ID }}
-          NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-        run: |
-          echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
-          echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
-
-      - name: Build artifact
-        env:
-          NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-        run: |
-          echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
-          apt-get update && \
-          apt-get install -y --no-install-recommends git
-          curl -sSL https://install.python-poetry.org | python -
-          pip install git+https://cb:sYxb63fXwm2BhB2MzFUy@gitlab.com/chainbrain/platform/chainbrain.git#main
-          python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
-          mv .lyric/build/artifact.zip .
-
-      - name: Store artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifact
-          path: artifact.zip
-          retention-days: 7
+  #build_artifact:
+  #  name: Build Artifact
+  #  runs-on: ubuntu-latest
+  #  container:
+  #    image: python:3.10-slim
+  #  steps:
+  #    - name: Check out code
+  #      uses: actions/checkout@v3
+#
+  #    - name: Set note env variables
+  #      env:
+  #        ORG_ID: ${{ secrets.ORG_ID }}
+  #        NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+  #      run: |
+  #        echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+  #        echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
+#
+  #    - name: Build artifact
+  #      env:
+  #        NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+  #      run: |
+  #        echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
+  #        apt-get update && \
+  #        apt-get install -y --no-install-recommends git
+  #        curl -sSL https://install.python-poetry.org | python -
+  #        pip install git+https://cb:sYxb63fXwm2BhB2MzFUy@gitlab.com/chainbrain/platform/chainbrain.git#main
+  #        python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
+  #        mv .lyric/build/artifact.zip .
+#
+  #    - name: Store artifact
+  #      uses: actions/upload-artifact@v3
+  #      with:
+  #        name: artifact
+  #        path: artifact.zip
+  #        retention-days: 7
 
   docker_publish:
-    needs: build_artifact
+  # needs: build_artifact
     uses: ./.github/workflows/note-docker-publish.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
