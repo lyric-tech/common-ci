@@ -104,8 +104,7 @@ jobs:
 
     - name: Combine Dockerfile.base and Dockerfile
       run: |
-        cat Dockerfile.base > Dockerfile.tmp
-        cat Dockerfile >> Dockerfile.tmp
+        cat Dockerfile.base > Dockerfile
 
     - name: Build and push docker to AWS ECR
       uses: docker/build-push-action@v2
