@@ -72,7 +72,7 @@ jobs:
       env:
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
       run: |
-          curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.base
+          curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.spark.base
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas2.base > Dockerfile.pandas2.base
           curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas1.base > Dockerfile.pandas1.base
@@ -81,6 +81,22 @@ jobs:
           --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
+          ls -ltr
+          cat Dockerfile
+
+    - name: Docker meta
+      id: meta
+      env:
+        REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        NOTE_IMAGE_REPO: ${{ env.NOTE_IMAGE_REPO }}
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ steps.login-ecr.outputs.registry }}/${{ env.NOTE_IMAGE_REPO }}
+        tags: |
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -88,25 +104,23 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Build, tag, and push image to Amazon ECR
-      env:
-        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
-        NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-        LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
-      run: |
-        docker pul $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }}  || true
-        docker buildx create --use
-        docker buildx build --platform linux/amd64,linux/arm64 \
-          --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
-          --build-arg private_repo_username=chainbrain-token \
-          --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
-          --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
-          --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
-          --build-arg docker_registry=${ECR_REGISTRY} \
-          -t $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} .
-        docker push $ECR_REGISTRY/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+    - name: Build and push docker to AWS ECR
+      uses: docker/build-push-action@v2
+      with:
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
+        context: ${{ github.workspace }}
+        file: Dockerfile
+        build-args: |
+            private_repo_username=chainbrain-token
+            private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
+            github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
+            github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
+            docker_registry=${{ steps.login-ecr.outputs.registry }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: 'Authenticate to Google Cloud'
       id: 'auth'
@@ -123,18 +137,37 @@ jobs:
         username: oauth2accesstoken
         password: ${{ steps.auth.outputs.access_token }}
 
-    - name: Tag, and push image to Google GCR
+    - name: Docker meta
+      id: meta-gcr
       env:
-        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
-      run: |
-        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
-        echo "Pushing Image to GCR..."
-        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} gcr.io/$GCP_PROJECT_ID/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
-        docker push gcr.io/$GCP_PROJECT_ID/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
-        echo "::group::Image Tag"
-        echo "${{ inputs.NOTE_TAG }}"
-        echo "::endgroup::"
+        REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        NOTE_IMAGE_REPO: ${{ env.NOTE_IMAGE_REPO }}        
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ steps.login-ecr.outputs.registry }}/${{ env.NOTE_IMAGE_REPO }}
+        tags: |
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
+
+    - name: Build and push docker to GCP GCR
+      uses: docker/build-push-action@v2
+      with:
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-gcr.outputs.tags }}
+        labels: ${{ steps.meta-gcr.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
+        context: ${{ github.workspace }}
+        file: Dockerfile
+        build-args: |
+            private_repo_username=chainbrain-token
+            private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
+            github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
+            github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
+            docker_registry=${{ steps.login-ecr.outputs.registry }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 #
 #    - name: Log into registry
 #      uses: docker/login-action@v1
