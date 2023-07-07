@@ -1,0 +1,135 @@
+name: Microservice Docker Build and publish
+
+on:
+  workflow_call:
+    inputs:
+      IMAGE_TAG:
+        required: true
+        type: string
+      ECR_REPOSITORY:
+        required: true
+        type: string
+      BASE_DIRECTORY:
+        default: '.'
+        type: string
+    secrets:
+      AWS_DEFAULT_REGION:
+        required: true
+      AWS_ROLE_ARN:
+        required: true
+      GCP_WORKLOAD_IDENTITY:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_PROJECT_ID:
+        required: true
+             
+permissions:
+  id-token: write
+  contents: write 
+  repository-projects: write
+
+env:
+  TARGET_PLATFORMS: linux/arm64,linux/amd64,linux/amd64/v2,linux/arm/v7,linux/arm/v6
+  IMAGE_NAME: ${{ inputs.ECR_REPOSITORY }}
+
+jobs:
+  build_and_publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Docker meta for ECR
+      id: meta
+      env:
+        REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ steps.login-ecr.outputs.registry }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Upgrade qemu
+      run: |
+        sudo apt-get install qemu binfmt-support qemu-user-static -y
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      with:
+        platforms: ${{ env.TARGET_PLATFORMS }}
+
+    - name: Create Amazon ECR repository
+      env:
+        ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+      run: |
+        # Build a docker container and push it to ECR 
+        cd $BASE_DIRECTORY
+        aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository \
+          --repository-name $ECR_REPOSITORY --image-scanning-configuration scanOnPush=true \
+          --encryption-configuration '{"encryptionType":"KMS"}' \
+          --tags Key=sprinto,Value=prod Key=env,Value=prod
+
+    - name: Build and push docker to AWS ECR
+      uses: docker/build-push-action@v2
+      with:
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: 'Authenticate to Google Cloud'
+      id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+    - name: Login to GCR
+      uses: docker/login-action@v2
+      with:
+        registry: gcr.io
+        username: oauth2accesstoken
+        password: ${{ steps.auth.outputs.access_token }}
+
+    - name: Docker meta for GCR
+      id: meta-gcr
+      uses: docker/metadata-action@v3
+      with:
+        images: gcr.io/${{secrets.GCP_PROJECT_ID}}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=schedule
+          type=ref,event=branch
+          type=ref,event=tag
+          type=ref,event=pr
+
+    - name: Build and push docker to GCP GCR
+      uses: docker/build-push-action@v2
+      with:
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta-gcr.outputs.tags }}
+        labels: ${{ steps.meta-gcr.outputs.labels }}
+        platforms: ${{ env.TARGET_PLATFORMS }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
