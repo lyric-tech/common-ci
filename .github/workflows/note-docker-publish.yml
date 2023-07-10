@@ -81,7 +81,6 @@ jobs:
           --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
-          docker run --privileged --rm tonistiigi/binfmt --install all
 
     - name: Docker meta
       id: meta
