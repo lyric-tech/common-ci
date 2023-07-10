@@ -87,7 +87,6 @@ jobs:
           --repository-name $ECR_REPOSITORY --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \
           --tags Key=sprinto,Value=prod Key=env,Value=prod
-        docker run --privileged --rm tonistiigi/binfmt --install all
 
     - name: Build and push docker to AWS ECR
       uses: docker/build-push-action@v2
