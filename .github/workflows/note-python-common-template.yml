@@ -63,10 +63,14 @@ jobs:
       - name: Build artifact
         env:
           NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
+          LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+          LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
         run: |
           echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
           apt-get update && \
           apt-get install -y --no-install-recommends git
+          echo "https://$LYRIC_GITHUB_USERNAME:$LYRIC_GITHUB_TOKEN@github.com" >> $HOME/.git-credentials
+          git config --global credential.helper store
           curl -sSL https://install.python-poetry.org | python -
           pip install git+https://cb:sYxb63fXwm2BhB2MzFUy@gitlab.com/chainbrain/platform/chainbrain.git@1.0.8
           python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
