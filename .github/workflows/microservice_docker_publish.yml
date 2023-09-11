@@ -48,8 +48,9 @@ jobs:
         SUPER_WI: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
         SUPER_SA: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       run: |
-        echo "The value of MY_SECRET_VARIABLE is ${{ secrets.GCP_WORKLOAD_IDENTITY }}"
-        echo "The value of MY_SECRET_VARIABLE is ${{ secrets.GCP_SERVICE_ACCOUNT }}"
+        echo "The value of MY_SECRET_VARIABLE is ${{ secrets.GCP_WORKLOAD_IDENTITY }}" >> test.txt
+        echo "The value of MY_SECRET_VARIABLE is ${{ secrets.GCP_SERVICE_ACCOUNT }}" >> test.txt
+        cat test.txt
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
