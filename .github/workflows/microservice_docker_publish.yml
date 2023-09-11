@@ -118,8 +118,8 @@ jobs:
         GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
       run: |
         echo "Pushing Image to GCR..."
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG us-docker.pkg.dev/$GCP_PROJECT_ID/$ECR_REPOSITORY:$IMAGE_TAG
-        docker push us-docker.pkg.dev/$GCP_PROJECT_ID/$ECR_REPOSITORY:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::group::Image Tag"
         echo "${{ inputs.IMAGE_TAG }}"
         echo "::endgroup::"

@@ -87,11 +87,11 @@ jobs:
       run: |
         # Build a docker container and push it to ECR      
         echo "Retagging image for promotion"
-        docker pull us-docker.pkg.dev/$GCP_PROJECT_ID/$ECR_REPOSITORY:$FROM_IMAGE_TAG
-        docker tag us-docker.pkg.dev/$GCP_PROJECT_ID/$ECR_REPOSITORY:$FROM_IMAGE_TAG us-docker.pkg.dev/$GCP_PROJECT_ID/$ECR_REPOSITORY:$TO_IMAGE_TAG
+        docker pull us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/$ECR_REPOSITORY:$FROM_IMAGE_TAG
+        docker tag us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/$ECR_REPOSITORY:$FROM_IMAGE_TAG us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/$ECR_REPOSITORY:$TO_IMAGE_TAG
 
         echo "Pushing Release Image to ECR..."
-        docker push us-docker.pkg.dev/$GCP_PROJECT_ID/$ECR_REPOSITORY:$TO_IMAGE_TAG
+        docker push us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/$ECR_REPOSITORY:$TO_IMAGE_TAG
         echo "::group::Image Tag"
         echo "$TO_IMAGE_TAG"
         echo "::endgroup::"

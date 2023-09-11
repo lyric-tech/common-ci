@@ -70,6 +70,6 @@ runs:
         GCP_PROJECT_ID: ${{ inputs.gcp_project_id }}
       run: |
         echo "Pushing Image to GCR..."
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} us-docker.pkg.dev/${{ inputs.gcp_project_id }}/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
-        docker push us-docker.pkg.dev/${{ inputs.gcp_project_id }}/$ECR_REPOSITORY:${{ inputs.to_tag }} || true            
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
+        docker push us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/$ECR_REPOSITORY:${{ inputs.to_tag }} || true            
       shell: bash

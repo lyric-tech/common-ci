@@ -121,8 +121,8 @@ jobs:
       run: |
         echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         echo "Pushing Image to GCR..."
-        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} us-docker.pkg.dev/$GCP_PROJECT_ID/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
-        docker push us-docker.pkg.dev/$GCP_PROJECT_ID/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+        docker tag ${ECR_REGISTRY}/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }} us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
+        docker push us-docker.pkg.dev/$GCP_PROJECT_ID/lyric/${NOTE_IMAGE_REPO}:${{ inputs.NOTE_TAG }}
         echo "::group::Image Tag"
         echo "${{ inputs.NOTE_TAG }}"
         echo "::endgroup::"
