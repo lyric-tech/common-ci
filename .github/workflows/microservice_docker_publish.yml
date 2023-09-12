@@ -1,4 +1,4 @@
-name: Microservice Docker Build and publish
+name: Microservice Docker Build and Publish to ECR, GCR, and ACR
 
 on:
   workflow_call:
@@ -73,7 +73,7 @@ jobs:
     - name: Login to GCR
       uses: docker/login-action@v2
       env:
-        gcr_password: ${{ steps.auth.outputs.access_token}}      
+        gcr_password: ${{ steps.auth.outputs.access_token}}
       with:
         registry: us-docker.pkg.dev
         username: oauth2accesstoken
@@ -112,7 +112,7 @@ jobs:
         BASE_DIRECTORY: ${{ inputs.BASE_DIRECTORY }}
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}      
+        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
       with:
         context: ${{ inputs.BASE_DIRECTORY }}
         platforms: linux/amd64,linux/arm64
@@ -125,3 +125,7 @@ jobs:
             github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
             github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
             docker_registry=${{ secrets.ECR_REGISTRY }}
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

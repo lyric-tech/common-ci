@@ -3,8 +3,8 @@ description: ''
 inputs:
   aws_default_region:
     description: 'AWS Default Region name'
-  ecr_repository:
-    description: 'ECR Repository name'
+  repository_name:
+    description: 'Docker Repository name'
   aws_role_arn:
     description: 'AWS Role ARN'
   from_tag:
@@ -17,6 +17,12 @@ inputs:
     description: 'GCP Workload Identity'
   gcp_service_account:
     description: 'GCP Service Account'
+  gcr_registry:
+    description: 'GCR Registry'
+  ecr_registry:
+    description: 'ECR Registry'
+  acr_registry:
+    description: 'ACR Registry'
 
 runs:
   using: "composite"
