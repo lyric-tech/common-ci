@@ -27,7 +27,7 @@ runs:
   steps:
     - run: echo "Processing ${{ inputs.repository }} - branch ${{ inputs.ref }}"
       shell: bash
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
