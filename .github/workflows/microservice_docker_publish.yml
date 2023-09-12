@@ -3,10 +3,7 @@ name: Microservice Docker Build and publish
 on:
   workflow_call:
     inputs:
-      IMAGE_TAG:
-        required: true
-        type: string
-      ECR_REPOSITORY:
+      REPOSITORY_NAME:
         required: true
         type: string
       BASE_DIRECTORY:
@@ -22,6 +19,10 @@ on:
       AWS_DEFAULT_REGION:
         required: true
       AWS_ROLE_ARN:
+        required: true
+      ECR_REGISTRY:
+        required: true
+      GCR_REGISTRY:
         required: true
       GCP_WORKLOAD_IDENTITY:
         required: true
@@ -44,7 +45,7 @@ permissions:
 jobs:
   build_and_publish:
     name: Build and Publish
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -87,18 +88,17 @@ jobs:
 
     - name: Docker meta for ECR
       id: meta
-      uses: docker/metadata-action@v3
-      env:
-        REGISTRY: ${{ steps.login-ecr.outputs.registry }}      
+      uses: docker/metadata-action@v3    
       with:
         images: |
-          ${{ env.REGISTRY }}/${{ inputs.ECR_REPOSITORY }}
-          us-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/lyric/${{ inputs.ECR_REPOSITORY }}
-          ${{ secrets.ACR_ENDPOINT }}/${{ inputs.ECR_REPOSITORY }}
+          ${{ secrets.ECR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}
+          ${{ secrets.GCR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}
+          ${{ secrets.ACR_ENDPOINT }}/${{ inputs.REPOSITORY_NAME }}
         tags: |
           type=ref,event=branch
           type=ref,event=tag
           type=semver,pattern={{version}}
+          type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -109,9 +109,6 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       env:
-        IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
         BASE_DIRECTORY: ${{ inputs.BASE_DIRECTORY }}
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
@@ -127,4 +124,4 @@ jobs:
             private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
             github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
             github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
-            docker_registry=${{ steps.login-ecr.outputs.registry }}
+            docker_registry=${{ secrets.ECR_REGISTRY }}
