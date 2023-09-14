@@ -66,22 +66,11 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: 'true'
-    
-    - name: Create Repo in Amazon ECR
-      env:
-        REPOSITORY_NAME: ${{ inputs.REPOSITORY_NAME }}
-      run: |
-        env
 
-    - name: Create Repo in Amazon ECR
-      env:
-        REPOSITORY_NAME: ${{ inputs.REPOSITORY_NAME }}    
-      run: |
-        # Build a docker container and push it to ECR 
-        aws ecr describe-repositories --repository-names $REPOSITORY_NAME || aws ecr create-repository \
-          --repository-name $REPOSITORY_NAME --image-scanning-configuration scanOnPush=true \
-          --encryption-configuration '{"encryptionType":"KMS"}' \
-          --tags Key=sprinto,Value=prod Key=env,Value=prod  
+    - uses: int128/create-ecr-repository-action@v1
+      with:
+        repository: ${{ inputs.REPOSITORY_NAME }}
+        lifecycle-policy: config/lifecycle-policy.json
           
     - name: 'Authenticate to Google Cloud'
       id: 'auth'
