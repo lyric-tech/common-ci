@@ -8,7 +8,6 @@ on:
         type: string
       CHAINBRAIN_VERSION:
         default: 'latest'
-        required: true
         type: string        
       BASE_DIRECTORY:
         default: '.'
