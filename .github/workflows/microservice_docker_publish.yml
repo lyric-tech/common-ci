@@ -66,6 +66,11 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: 'true'
+    
+    - name: Create Repo in Amazon ECR
+      run: |
+        env
+
     - name: Create Repo in Amazon ECR
       run: |
         # Build a docker container and push it to ECR 
