@@ -70,7 +70,7 @@ jobs:
     - uses: int128/create-ecr-repository-action@v1
       with:
         repository: ${{ inputs.REPOSITORY_NAME }}
-        lifecycle-policy: config/lifecycle-policy.json
+        lifecycle-policy: .github/config/lifecycle-policy.json
           
     - name: 'Authenticate to Google Cloud'
       id: 'auth'
