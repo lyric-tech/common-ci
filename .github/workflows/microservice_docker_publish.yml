@@ -6,15 +6,21 @@ on:
       REPOSITORY_NAME:
         required: true
         type: string
+      CHAINBRAIN_VERSION:
+        default: 'latest'
+        required: true
+        type: string        
       BASE_DIRECTORY:
         default: '.'
         type: string
     secrets:
-      LYRIC_GITHUB_USERNAME:
+      GITHUB_USERNAME:
         required: false
-      LYRIC_GITHUB_TOKEN:
+      GITHUB_TOKEN:
         required: false
-      CHAINBRAIN_TOKEN:
+      GITLAB_USERNAME:
+        required: false
+      GITLAB_TOKEN:
         required: false
       AWS_DEFAULT_REGION:
         required: true
@@ -61,7 +67,14 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: 'true'
-
+    - name: Create Repo in Amazon ECR
+      run: |
+        # Build a docker container and push it to ECR 
+        aws ecr describe-repositories --repository-names $REPOSITORY_NAME || aws ecr create-repository \
+          --repository-name $REPOSITORY_NAME --image-scanning-configuration scanOnPush=true \
+          --encryption-configuration '{"encryptionType":"KMS"}' \
+          --tags Key=sprinto,Value=prod Key=env,Value=prod  
+          
     - name: 'Authenticate to Google Cloud'
       id: 'auth'
       uses: 'google-github-actions/auth@v1'
@@ -120,10 +133,10 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
-            private_repo_username=chainbrain-token
-            private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
-            github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
-            github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
+            private_repo_username=${{ secrets.GITLAB_USERNAME }}
+            private_repo_token=${{ secrets.GITLAB_TOKEN }}
+            github_username=${{ secrets.GITHUB_USERNAME }}
+            github_token=${{ secrets.GITHUB_TOKEN }}
             docker_registry=${{ secrets.ECR_REGISTRY }}
             cache-from: type=gha
             cache-to: type=gha,mode=max

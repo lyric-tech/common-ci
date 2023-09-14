@@ -7,14 +7,19 @@ on:
         required: true
         type: string
       CHAINBRAIN_VERSION:
+        default: 'latest'
         required: true
         type: string
       BASE_DIRECTORY:
         default: '.'
         type: string        
     secrets:
+      GITHUB_USERNAME:
+        required: false
+      GITHUB_TOKEN:
+        required: false
       GITLAB_TOKEN:
-        required: true
+        required: false
       AWS_DEFAULT_REGION:
         required: true
       AWS_ROLE_ARN:
@@ -35,7 +40,7 @@ on:
         required: true
       ACR_PASSWORD:
         required: true
-     
+             
 permissions:
   id-token: write
   contents: write 
@@ -60,15 +65,13 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: 'true'
-
     - name: Create Repo in Amazon ECR
       run: |
         # Build a docker container and push it to ECR 
         aws ecr describe-repositories --repository-names $REPOSITORY_NAME || aws ecr create-repository \
           --repository-name $REPOSITORY_NAME --image-scanning-configuration scanOnPush=true \
           --encryption-configuration '{"encryptionType":"KMS"}' \
-          --tags Key=sprinto,Value=prod Key=env,Value=prod        
-
+          --tags Key=sprinto,Value=prod Key=env,Value=prod  
     - name: 'Authenticate to Google Cloud'
       id: 'auth'
       uses: 'google-github-actions/auth@v1'
@@ -109,10 +112,10 @@ jobs:
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
-        
+    
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-       
+   
     - name: Build and push
       uses: docker/build-push-action@v4
       env:

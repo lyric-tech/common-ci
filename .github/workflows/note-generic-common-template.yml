@@ -6,7 +6,7 @@ on:
       image_tag:
         required: true
         type: string
-      ECR_REPOSITORY:
+      REPOSITORY_NAME:
         required: true
         type: string
     secrets:
@@ -19,6 +19,22 @@ on:
       ORG_NAME:
         required: true
       ARTIFACT_S3_PATH:
+        required: true
+      GCP_WORKLOAD_IDENTITY:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_PROJECT_ID:
+        required: true        
+      ECR_REGISTRY:
+        required: true
+      GCR_REGISTRY:
+        required: true
+      ACR_ENDPOINT:
+        required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
         required: true
 
 permissions:
@@ -57,18 +73,40 @@ jobs:
     uses: ./.github/workflows/note-docker-publish.yml
     with:
       image_tag: ${{ inputs.image_tag }}
-      ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+      ECR_REPOSITORY: ${{ inputs.REPOSITORY_NAME }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
+      LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+      LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+      CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      GCR_REGISTRY: ${{ secrets.GCR_REGISTRY }}
+      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      ACR_ENDPOINT: ${{ secrets.ACR_ENDPOINT }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}  
 
   publish_artifact:
     needs: build_artifact
     uses: ./.github/workflows/note-artifact-publish.yml
     with:
       build_version: ${{ inputs.image_tag }}
-      ARTIFACT_NAME: ${{ inputs.ECR_REPOSITORY }}
+      ARTIFACT_NAME: ${{ inputs.REPOSITORY_NAME }}
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
       ORG_NAME: ${{ secrets.ORG_NAME }}
+      LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
+      LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
+      CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      GCR_REGISTRY: ${{ secrets.GCR_REGISTRY }}
+      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      ACR_ENDPOINT: ${{ secrets.ACR_ENDPOINT }}
+      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}        

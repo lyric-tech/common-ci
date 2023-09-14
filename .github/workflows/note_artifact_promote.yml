@@ -22,7 +22,16 @@ on:
         required: true
       GCP_PROJECT_ID:
         required: true
-
+      ECR_REGISTRY:
+        required: true
+      GCR_REGISTRY:
+        required: true
+      ACR_ENDPOINT:
+        required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
+        required: true
 
 permissions:
   id-token: write
