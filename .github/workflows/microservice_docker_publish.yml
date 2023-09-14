@@ -14,9 +14,9 @@ on:
         default: '.'
         type: string
     secrets:
-      GITHUB_USERNAME:
+      LYRIC_GITHUB_USERNAME:
         required: false
-      GITHUB_TOKEN:
+      LYRIC_GITHUB_TOKEN:
         required: false
       GITLAB_USERNAME:
         required: false
