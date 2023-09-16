@@ -46,6 +46,6 @@ RUN poetry config virtualenvs.create false && \
 
 USER ${spark_uid}
 
-RUN RUN chown 1001:1001 .
+RUN chown 1001:1001 .
 
 CMD ["python3", "main.py"]
