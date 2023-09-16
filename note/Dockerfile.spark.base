@@ -29,7 +29,7 @@ ARG github_token
 USER root
 WORKDIR /home/cbadmin
 
-RUN chown -R 1001:1001 /var/lib
+RUN chown -R 1001:1001 /var
 
 USER ${spark_uid}
 
