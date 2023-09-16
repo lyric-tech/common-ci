@@ -26,7 +26,7 @@ ARG private_repo_token
 ARG github_username
 ARG github_token
 
-USER ${spark_uid}
+USER root
 WORKDIR /home/cbadmin
 
 # COPY --chown=1001:1001 --from=requirements-stage /tmp/requirements.txt .
@@ -40,12 +40,12 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
 
 COPY . .
 
-USER root
-
 RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction && \
     rm -rf ${HOME}/.git-credentials
 
 USER ${spark_uid}
+
+RUN RUN chown 1001:1001 .
 
 CMD ["python3", "main.py"]
