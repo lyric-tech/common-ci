@@ -30,6 +30,7 @@ USER root
 WORKDIR /home/cbadmin
 
 RUN chown -R 1001:1001 /var
+RUN chown -R 1001:1001 /usr
 
 USER ${spark_uid}
 
