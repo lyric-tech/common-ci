@@ -29,11 +29,6 @@ ARG github_token
 USER root
 WORKDIR /home/cbadmin
 
-RUN chown -R 1001:1001 /var
-RUN chown -R 1001:1001 /usr
-
-USER ${spark_uid}
-
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store && \
