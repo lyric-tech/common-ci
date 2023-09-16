@@ -40,6 +40,8 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
     apt-get install -y git && \
     pip install poetry
 
+ENV PATH="/home/cbadmin/.local/bin:${PATH}"
+
 COPY . .
 
 RUN poetry config virtualenvs.create false && \
