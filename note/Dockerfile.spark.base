@@ -40,8 +40,12 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
 
 COPY . .
 
+USER root
+
 RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction && \
     rm -rf ${HOME}/.git-credentials
+
+USER ${spark_uid}
 
 CMD ["python3", "main.py"]
