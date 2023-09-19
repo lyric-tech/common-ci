@@ -50,7 +50,7 @@ permissions:
 jobs:
   build_and_publish:
     name: Build and Publish
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -135,6 +135,7 @@ jobs:
             github_username=${{ secrets.GITHUB_USERNAME }}
             github_token=${{ secrets.GITHUB_TOKEN }}
             docker_registry=${{ secrets.ECR_REGISTRY }}
+            chainbrain_version=${{ secrets.CHAINBRAIN_VERSION }}
             cache-from: type=gha
             cache-to: type=gha,mode=max
         cache-from: type=gha
