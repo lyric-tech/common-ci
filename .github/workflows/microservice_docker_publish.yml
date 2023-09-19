@@ -132,6 +132,8 @@ jobs:
         build-args: |
             private_repo_username=${{ secrets.GITLAB_USERNAME }}
             private_repo_token=${{ secrets.GITLAB_TOKEN }}
+            gitlab_username=${{ secrets.GITLAB_USERNAME }}
+            gitlab_token=${{ secrets.GITLAB_TOKEN }}
             github_username=${{ secrets.GITHUB_USERNAME }}
             github_token=${{ secrets.GITHUB_TOKEN }}
             docker_registry=${{ secrets.ECR_REGISTRY }}
