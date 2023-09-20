@@ -80,7 +80,14 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
+          
+      - name: Create Repo in Amazon ECR
+        run: |
+          aws ecr describe-repositories --repository-names lyric/note/${NOTE_NAME} || aws ecr create-repository \
+            --repository-name lyric/note/${NOTE_NAME} --image-scanning-configuration scanOnPush=true \
+            --encryption-configuration '{"encryptionType":"KMS"}' \
+            --tags Key=sprinto,Value=prod Key=env,Value=prod
+            
       - name: Upload note to ${{ inputs.CUSTOMER_NAME }} artifact
         env:
           ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
