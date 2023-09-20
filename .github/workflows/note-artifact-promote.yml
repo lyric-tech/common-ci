@@ -58,13 +58,27 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           role-duration-seconds: 900
-
+          
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      
       - name: Set note env variables
         env:
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
-
+          
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+        run: |
+          aws ecr describe-repositories --repository-names $ECR_REPOSITORY || aws ecr create-repository \
+            --repository-name $ECR_REPOSITORY --image-scanning-configuration scanOnPush=true \
+            --encryption-configuration '{"encryptionType":"KMS"}' \
+            --tags Key=sprinto,Value=prod Key=env,Value=prod
+            
       - name: Upload artifact to S3 to Customer Path
         env:
           ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
