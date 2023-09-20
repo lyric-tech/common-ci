@@ -76,7 +76,16 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           role-duration-seconds: 900
-
+            
+      - name: Upload note to ${{ inputs.CUSTOMER_NAME }} artifact
+        env:
+          ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
+          NOTES_S3_PATH: ${{ secrets.NOTES_S3_PATH }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          NOTE_VERSION: "${{ inputs.NOTE_VERSION == 'main' && 'latest' || inputs.NOTE_VERSION }}"
+        run: |
+          aws s3 cp artifact.zip s3://lyric-store-lyric/note_artifacts/${{ inputs.CUSTOMER_NAME }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
+          
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -87,16 +96,6 @@ jobs:
             --repository-name lyric/note/${NOTE_NAME} --image-scanning-configuration scanOnPush=true \
             --encryption-configuration '{"encryptionType":"KMS"}' \
             --tags Key=sprinto,Value=prod Key=env,Value=prod
-            
-      - name: Upload note to ${{ inputs.CUSTOMER_NAME }} artifact
-        env:
-          ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
-          NOTES_S3_PATH: ${{ secrets.NOTES_S3_PATH }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          NOTE_VERSION: "${{ inputs.NOTE_VERSION == 'main' && 'latest' || inputs.NOTE_VERSION }}"
-        run: |
-          aws s3 cp artifact.zip s3://lyric-store-lyric/note_artifacts/${{ inputs.CUSTOMER_NAME }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
-
       - name: Tag and push image to Amazon ECR
         env:
           ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
