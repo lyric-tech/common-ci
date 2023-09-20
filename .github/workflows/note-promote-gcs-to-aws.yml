@@ -96,6 +96,7 @@ jobs:
             --repository-name lyric/note/${NOTE_NAME} --image-scanning-configuration scanOnPush=true \
             --encryption-configuration '{"encryptionType":"KMS"}' \
             --tags Key=sprinto,Value=prod Key=env,Value=prod
+            
       - name: Tag and push image to Amazon ECR
         env:
           ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
