@@ -1,4 +1,4 @@
-# NOTE: THIS IS A COPY OF Dockerfile.pandas.base, any change to this file must also be made there
+# NOTE: THIS IS A COPY OF Dockerfile.pandas1.base, any change to this file must also be made there
 #Arguement Declaration
 ARG docker_registry
 
