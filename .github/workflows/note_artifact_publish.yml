@@ -77,7 +77,7 @@ jobs:
       - uses: LanceMcCarthy/Action-AzureBlobUpload@v2
         name: Azure Blob Upload with Destination folder defined
         with:
-          connection_string: ${{ secrets.AZURE_CONNECTION_STRING }}
+          connection_string: ${{ secrets.AZURE_CONNECTIONSTRING }}
           container_name: "lyric-store-lyric"
           source_folder: .\artifact.zip
           destination_folder: note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
