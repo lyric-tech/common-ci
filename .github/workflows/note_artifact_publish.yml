@@ -62,11 +62,6 @@ jobs:
   
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
-
-      - uses: azure/login@v1
-        with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
-
             
       - name: Upload artifact to File Storages
         env:
