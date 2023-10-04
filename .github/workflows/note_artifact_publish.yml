@@ -22,16 +22,8 @@ on:
         required: true
       GCP_PROJECT_ID:
         required: true
-      ECR_REGISTRY:
+      AZURE_CONNECTIONSTRING:
         required: true
-      GCR_REGISTRY:
-        required: true
-      ACR_ENDPOINT:
-        required: true
-      ACR_USERNAME:
-        required: true
-      ACR_PASSWORD:
-        required: true                
 
 permissions:
   id-token: write
@@ -61,7 +53,22 @@ jobs:
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
-      - name: Upload artifact to S3
+      - name: Configure GCP Credentials
+        uses: 'google-github-actions/auth@v1'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - uses: azure/login@v1
+        with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            
+      - name: Upload artifact to File Storages
         env:
           ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
@@ -69,19 +76,13 @@ jobs:
         run: |
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp artifact.zip ${ARTIFACT_S3_PATH}/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-          
-      - name: Configure GCP Credentials
-        uses: 'google-github-actions/auth@v1'
-        with:
-          token_format: 'access_token'
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
-
-      - name: Upload Artifact for GCR
-        env:
-          NOTE_TAG: ${{ inputs.NOTE_TAG }}
-        run: |
           gsutil cp artifact.zip gs://lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+          
+
+      - uses: LanceMcCarthy/Action-AzureBlobUpload@v2
+        name: Azure Blob Upload with Destination folder defined
+        with:
+          connection_string: ${{ secrets.AZURE_CONNECTION_STRING }}
+          container_name: "lyric-store-lyric"
+          source_folder: .\artifact.zip
+          destination_folder: note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
