@@ -79,5 +79,5 @@ jobs:
         with:
           connection_string: ${{ secrets.AZURE_CONNECTIONSTRING }}
           container_name: "lyric-store-lyric"
-          source_folder: .\artifact.zip
+          source_folder: ./artifact.zip
           destination_folder: note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
