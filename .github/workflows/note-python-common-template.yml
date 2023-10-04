@@ -17,8 +17,10 @@ on:
         required: true
       LYRIC_GITHUB_TOKEN:
         required: true
-      CHAINBRAIN_TOKEN:
+      GITLAB_TOKEN:
         required: true
+      GITLAB_USERNAME:
+        required: true        
       ORG_ID:
         required: true
       AWS_DEFAULT_REGION:
@@ -44,6 +46,8 @@ on:
       ACR_USERNAME:
         required: true
       ACR_PASSWORD:
+        required: true
+      AZURE_CONNECTIONSTRING:
         required: true
           
 
@@ -129,11 +133,7 @@ jobs:
       GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-      GCR_REGISTRY: ${{ secrets.GCR_REGISTRY }}
-      ACR_ENDPOINT: ${{ secrets.ACR_ENDPOINT }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}    
+      AZURE_CONNECTIONSTRING: ${{ secrets.AZURE_CONNECTIONSTRING }}
       
   promote_artifact:
     needs: publish_artifact
