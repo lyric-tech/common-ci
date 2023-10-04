@@ -86,7 +86,7 @@ jobs:
           echo "https://$LYRIC_GITHUB_USERNAME:$LYRIC_GITHUB_TOKEN@github.com" >> $HOME/.git-credentials
           git config --global credential.helper store
           curl -sSL https://install.python-poetry.org | python -
-          pip install git+https://cb:sYxb63fXwm2BhB2MzFUy@gitlab.com/chainbrain/platform/chainbrain.git@1.0.8
+          pip install git+https://$GITLAB_USERNAME:$GITLAB_TOKEN@gitlab.com/chainbrain/platform/chainbrain.git@1.0.8
           python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
           mv .lyric/build/artifact.zip .
 
