@@ -20,7 +20,7 @@ RUN apt-get update && \
     poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 # Final stage
-FROM ${docker_registry}/note-base/polars:latest
+FROM ${docker_registry}/note-base/polars:reports_support
 ARG docker_uid=1001
 ARG private_repo_username
 ARG private_repo_token
