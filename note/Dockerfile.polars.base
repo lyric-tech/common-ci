@@ -35,9 +35,10 @@ COPY --chown=${docker_uid}:${docker_uid} --from=requirements-stage /tmp/requirem
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store && \
-    pip install --no-cache-dir --upgrade -r /home/cbadmin/requirements.txt && \
-    rm -rf ${HOME}/.git-credentials
+    pip install --no-cache-dir --upgrade -r /home/cbadmin/requirements.txt
 
 COPY . .
 
-CMD ["python3", "main.py"]
+RUN cp /opt/entrypoint.sh ./entrypoint.sh
+
+CMD ["sh", "entrypoint.sh"]

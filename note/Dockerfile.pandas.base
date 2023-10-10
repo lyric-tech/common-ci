@@ -1,26 +1,6 @@
-# NOTE: THIS IS A COPY OF Dockerfile.pandas.base, any change to this file must also be made there
 #Arguement Declaration
 ARG docker_registry
 
-# #Stage 1
-# FROM python:3.10-slim as requirements-stage
-# ARG private_repo_username
-# ARG private_repo_token
-# ARG github_username
-# ARG github_token
-
-# WORKDIR /tmp
-# COPY ./pyproject.toml ./poetry.lock* /tmp/
-
-# RUN apt-get update && \
-#     apt-get install -y git && \
-#     pip install poetry && \
-#     echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
-#     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
-#     git config --global credential.helper store && \
-#     poetry export -f requirements.txt --output requirements.txt --without-hashes
-
-# Final stage
 FROM ${docker_registry}/note-base/pandas1:latest
 ARG docker_uid=1001
 ARG private_repo_username
@@ -43,7 +23,8 @@ ENV PATH="/home/cbadmin/.local/bin:${PATH}"
 COPY . .
 
 RUN poetry config virtualenvs.create false && \
-    poetry install --no-cache --no-interaction && \
-    rm -rf ${HOME}/.git-credentials
+    poetry install --no-cache --no-interaction
 
-CMD ["python3", "main.py"]
+RUN cp /opt/entrypoint.sh ./entrypoint.sh
+
+CMD ["sh", "entrypoint.sh"]
