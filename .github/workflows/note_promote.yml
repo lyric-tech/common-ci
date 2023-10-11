@@ -1,16 +1,20 @@
-name: Promote artifact to Customer Environment
+name: Promote Notes to Customer Environment
 
 on:
   workflow_call:
     inputs:
-      NOTE_TAG:
+      NOTE_VERSION:
         required: true
         type: string
-        description: 'Tag of the note to promote'
+        description: 'Note version'
       NOTE_REPOSITORY_NAME:
         required: true
         type: string
-        description: 'Name of the note repository to promote'
+        description: 'Note repository name'
+      CUSTOMER_NAME:
+        required: true
+        type: string
+        description: 'Customer name'
     secrets:
       AWS_DEFAULT_REGION:
         required: true
@@ -37,28 +41,10 @@ permissions:
   repository-projects: write
 
 jobs:
-  setup:
+  note_promote:
+    name: Promote Note to ${{ inputs.CUSTOMER_NAME }}
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.setVariables.outputs.matrix }}
     steps:
-      - id: setVariables
-        run: |
-          echo "::set-output name=matrix::${{ vars.CUSTOMER_ENVS }}"
-
-  publish_artifact:
-    name: Publish Artifact to S3
-    needs: setup
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        customer: ${{fromJson(needs.setup.outputs.matrix)}}
-    steps:
-      - name: Fetch artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: artifact
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -72,9 +58,15 @@ jobs:
           token_format: 'access_token'
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-  
+      
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
+  
+      - name: Set note env variables
+        env:
+          NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
+        run: |
+          echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
       - name: Set note env variables
         env:
@@ -82,12 +74,12 @@ jobs:
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
-      - name: Upload artifact to S3 to Customer Path
+      - name: Upload note to ${{ inputs.CUSTOMER_NAME }} artifact
         env:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          NOTE_TAG: ${{ inputs.NOTE_TAG }}
+          NOTE_VERSION: "${{ inputs.NOTE_VERSION == 'main' && 'latest' || inputs.NOTE_VERSION }}"
         run: |
-          aws configure set region $AWS_DEFAULT_REGION
-          aws s3 cp artifact.zip lyric-store-lyric/note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-          gsutil cp artifact.zip gs://lyric-store-lyric/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-          az storage blob upload --connection-string ${{ secrets.AZURE_CONNECTIONSTRING }} --container-name lyric-store-lyric --file artifact.zip --name ${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+          aws configure set region ${{ secrets.AWS_DEFAULT_REGION }}
+          aws s3 cp lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip lyric-store-lyric/note_artifacts/${{ inputs.CUSTOMER_NAME }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
+          gsutil cp gs://lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip gs://lyric-store-lyric/note_artifacts/${{ inputs.CUSTOMER_NAME }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip
+          

@@ -17,33 +17,50 @@ on:
         type: string           
     secrets:
       LYRIC_GITHUB_USERNAME:
-        required: true
+        required: false
+        description: 'Github username for private repo access'
       LYRIC_GITHUB_TOKEN:
-        required: true
-      CHAINBRAIN_TOKEN:
-        required: true
+        required: false
+        description: 'Github token for private repo access'
+      GITLAB_USERNAME:
+        required: false
+        description: 'Gitlab username for private repo access'
+      GITLAB_TOKEN:
+        required: false
+        description: 'Gitlab token for private repo access'
       ORG_ID:
         required: true
-      AWS_ROLE_ARN:
-        required: true
+        description: 'Organization ID for Docker Registry'
       AWS_DEFAULT_REGION:
         required: true
+        description: 'AWS region for ECR'
+      AWS_ROLE_ARN:
+        required: true
+        description: 'AWS role ARN for ECR'
       ECR_REGISTRY:
         required: true
+        description: 'ECR registry for ECR'
       GCR_REGISTRY:
         required: true
+        description: 'GCR registry for GCR'
       GCP_WORKLOAD_IDENTITY:
         required: true
+        description: 'GCP workload identity for GCR'
       GCP_SERVICE_ACCOUNT:
         required: true
+        description: 'GCP service account for GCR'
       GCP_PROJECT_ID:
         required: true
+        description: 'GCP project ID for GCR'
       ACR_ENDPOINT:
         required: true
+        description: 'ACR endpoint for ACR'
       ACR_USERNAME:
         required: true
+        description: 'ACR username for ACR'
       ACR_PASSWORD:
         required: true
+        description: 'ACR password for ACR'        
         
 
 permissions:
@@ -59,6 +76,7 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v4
 
+    # Set note env variables
     - name: Set note env variables
       env:
         ORG_ID: ${{ secrets.ORG_ID }}
@@ -67,18 +85,27 @@ jobs:
         echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
         echo "NOTE_IMAGE_REPO=$ORG_ID/note/$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
+    # Configure AWS credentials
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
+    # Login to Amazon ECR
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: 'true'
-
+  
+    # Create ECR repository
+    - uses: int128/create-ecr-repository-action@v1
+      with:
+        repository: ${{ env.NOTE_IMAGE_REPO }}
+        lifecycle-policy: .github/config/lifecycle-policy.json
+          
+    # Login to Google Cloud
     - name: 'Authenticate to Google Cloud'
       id: 'auth'
       uses: 'google-github-actions/auth@v1'
@@ -87,6 +114,7 @@ jobs:
         workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
         service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
+    # Login to Google Cloud Registry
     - name: Login to GCR
       uses: docker/login-action@v2
       env:
@@ -96,6 +124,7 @@ jobs:
         username: oauth2accesstoken
         password: ${{ env.gcr_password }}
 
+    # Login to Azure Container Registry
     - name: Log into ACR
       uses: docker/login-action@v1
       with:
@@ -103,6 +132,7 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
 
+    # Get Docker meta
     - name: Docker meta for ECR
       id: meta
       uses: docker/metadata-action@v3    
@@ -117,38 +147,28 @@ jobs:
           type=semver,pattern={{version}}
           type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
+    # Set up QEMU
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v3
     
+    # Set up Docker Buildx
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
 
-    - name: Build, tag, and push image to Amazon ECR
+    # Download note base dockerfile
+    - name: Download note base dockerfile
       env:
-        ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
-        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
         NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-        LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
       run: |
-        echo "note_name & repo: $NOTE_NAME , $NOTE_IMAGE_REPO"
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.spark.base > Dockerfile.spark.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas2.base > Dockerfile.pandas2.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas1.base > Dockerfile.pandas1.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.polars.base > Dockerfile.polars.base
-        aws ecr describe-repositories --repository-names $NOTE_IMAGE_REPO || aws ecr create-repository \
-          --repository-name $NOTE_IMAGE_REPO --image-scanning-configuration scanOnPush=true \
-          --encryption-configuration '{"encryptionType":"KMS"}' \
-          --tags Key=sprinto,Value=prod Key=env,Value=prod 
 
+    # Build and push
     - name: Build and push
       uses: docker/build-push-action@v4
-      env:
-        BASE_DIRECTORY: ${{ inputs.BASE_DIRECTORY }}
-        CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
-        LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-        LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
       with:
         context: ${{ inputs.BASE_DIRECTORY }}
         platforms: linux/amd64,linux/arm64
@@ -156,12 +176,13 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         build-args: |
-            private_repo_username=chainbrain-token
-            private_repo_token=${{ secrets.CHAINBRAIN_TOKEN }}
-            github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
-            github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
-            docker_registry=${{ secrets.ECR_REGISTRY }}
-            cache-from: type=gha
-            cache-to: type=gha,mode=max
+          private_repo_username=${{ secrets.GITLAB_USERNAME }}
+          private_repo_token=${{ secrets.GITLAB_TOKEN }}
+          gitlab_username=${{ secrets.GITLAB_USERNAME }}
+          gitlab_token=${{ secrets.GITLAB_TOKEN }}
+          github_username=${{ secrets.LYRIC_GITHUB_USERNAME }}
+          github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
+          docker_registry=${{ secrets.ECR_REGISTRY }}
+          chainbrain_version=${{ secrets.CHAINBRAIN_VERSION }}
         cache-from: type=gha
         cache-to: type=gha,mode=max

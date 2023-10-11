@@ -1,4 +1,4 @@
-name: CI for Python Note Developers
+name: CI for Python Notes
 
 on:
   workflow_call:
@@ -6,49 +6,68 @@ on:
       NOTE_TAG:
         required: true
         type: string
+        description: 'Tag for the note'
       NOTE_REPOSITORY_NAME:
         required: true
         type: string
+        description: 'Name of the note repository'
       NOTE_CI_TEMPLATE_VERSION:
         required: true
         type: string
+        default: 'latest'        
+        description: 'Version of the CI template to use'
     secrets:
       LYRIC_GITHUB_USERNAME:
-        required: true
+        required: false
+        description: 'Github username for private repo access'
       LYRIC_GITHUB_TOKEN:
-        required: true
-      GITLAB_TOKEN:
-        required: true
+        required: false
+        description: 'Github token for private repo access'
       GITLAB_USERNAME:
-        required: true        
+        required: false
+        description: 'Gitlab username for private repo access'
+      GITLAB_TOKEN:
+        required: false
+        description: 'Gitlab token for private repo access'
       ORG_ID:
         required: true
+        description: 'Organization ID for Docker Registry'
       AWS_DEFAULT_REGION:
         required: true
+        description: 'AWS region for ECR'
       AWS_ECR_ROLE_ARN:
         required: true
+        description: 'AWS role ARN for ECR'
       AWS_S3_ROLE_ARN:
         required: true
-      ARTIFACT_S3_PATH:
-        required: true
-      GCP_WORKLOAD_IDENTITY:
-        required: true
-      GCP_SERVICE_ACCOUNT:
-        required: true
-      GCP_PROJECT_ID:
-        required: true
+        description: 'AWS role ARN for S3'        
       ECR_REGISTRY:
         required: true
+        description: 'ECR registry for ECR'
       GCR_REGISTRY:
         required: true
+        description: 'GCR registry for GCR'
+      GCP_WORKLOAD_IDENTITY:
+        required: true
+        description: 'GCP workload identity for GCR'
+      GCP_SERVICE_ACCOUNT:
+        required: true
+        description: 'GCP service account for GCR'
+      GCP_PROJECT_ID:
+        required: true
+        description: 'GCP project ID for GCR'
       ACR_ENDPOINT:
         required: true
+        description: 'ACR endpoint for ACR'
       ACR_USERNAME:
         required: true
+        description: 'ACR username for ACR'
       ACR_PASSWORD:
         required: true
+        description: 'ACR password for ACR'       
       AZURE_CONNECTIONSTRING:
         required: true
+        description: 'Azure connection string for Azure Blob Storage'
           
 
 permissions:
@@ -97,7 +116,7 @@ jobs:
         with:
           name: artifact
           path: artifact.zip
-          retention-days: 7
+          retention-days: 1
 
   docker_publish:
     needs: build_artifact
@@ -110,7 +129,8 @@ jobs:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
       ORG_ID: ${{ secrets.ORG_ID }}
-      CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+      GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+      GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
       LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
       LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
       GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
@@ -131,7 +151,6 @@ jobs:
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
-      ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
       GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -139,7 +158,7 @@ jobs:
       
   promote_artifact:
     needs: publish_artifact
-    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v') == true && (contains(github.event.repository.name, 'datasource') == true || contains(github.event.repository.name, 'transformer'))
+    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v') == true && (contains(github.event.repository.name, 'datasource') == true || contains(github.event.repository.name, 'transformer') == true || contains(github.event.repository.name, 'nc-transformer' == true))
     uses: ./.github/workflows/note_artifact_promote.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
@@ -147,12 +166,7 @@ jobs:
     secrets:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       AWS_ROLE_ARN: ${{ secrets.AWS_S3_ROLE_ARN }}
-      ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
       GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-      GCR_REGISTRY: ${{ secrets.GCR_REGISTRY }}
-      ACR_ENDPOINT: ${{ secrets.ACR_ENDPOINT }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}        
+      AZURE_CONNECTIONSTRING: ${{ secrets.AZURE_CONNECTIONSTRING }}
