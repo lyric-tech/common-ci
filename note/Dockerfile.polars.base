@@ -28,10 +28,13 @@ ARG github_username
 ARG github_token
 
 USER root
-WORKDIR /home/cbadmin
-RUN cp /opt/entrypoint.sh ./entrypoint.sh
+RUN cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh
+RUN chmod -R 777 /home
 
 USER ${docker_uid}
+
+WORKDIR /home/cbadmin
+
 COPY --chown=${docker_uid}:${docker_uid} --from=requirements-stage /tmp/requirements.txt .
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
@@ -40,8 +43,5 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
     pip install --no-cache-dir --upgrade -r /home/cbadmin/requirements.txt
 
 COPY . .
-
-# Set permissions for entrypoint.sh
-RUN chmod +x entrypoint.sh
 
 ENTRYPOINT ["sh", "entrypoint.sh"]
