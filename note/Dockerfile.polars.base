@@ -28,11 +28,10 @@ ARG github_username
 ARG github_token
 
 USER root
+WORKDIR /home/cbadmin
 RUN cp /opt/entrypoint.sh ./entrypoint.sh
 
 USER ${docker_uid}
-WORKDIR /home/cbadmin
-
 COPY --chown=${docker_uid}:${docker_uid} --from=requirements-stage /tmp/requirements.txt .
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
