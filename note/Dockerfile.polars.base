@@ -27,6 +27,8 @@ ARG private_repo_token
 ARG github_username
 ARG github_token
 
+RUN cp /opt/entrypoint.sh ./entrypoint.sh
+
 USER ${docker_uid}
 WORKDIR /home/cbadmin
 
@@ -39,6 +41,7 @@ RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-crede
 
 COPY . .
 
-RUN cp /opt/entrypoint.sh ./entrypoint.sh
+# Set permissions for entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 ENTRYPOINT ["sh", "entrypoint.sh"]
