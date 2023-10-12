@@ -27,6 +27,7 @@ ARG private_repo_token
 ARG github_username
 ARG github_token
 
+USER root
 RUN cp /opt/entrypoint.sh ./entrypoint.sh
 
 USER ${docker_uid}
