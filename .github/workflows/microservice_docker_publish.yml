@@ -162,5 +162,5 @@ jobs:
           github_token=${{ secrets.LYRIC_GITHUB_TOKEN }}
           docker_registry=${{ secrets.ECR_REGISTRY }}
           chainbrain_version=${{ secrets.CHAINBRAIN_VERSION }}
-        cache-from: type=registry,ref=${{ secrets.ECR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}:${{ github.ref }}}
-        cache-to: type=registry,ref=${{ secrets.ECR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}:${{ github.ref }},mode=max
+        cache-from: type=registry,ref=${{ secrets.ECR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}:latest
+        cache-to: type=registry,ref=${{ secrets.ECR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}:latest,mode=max
