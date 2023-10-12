@@ -28,4 +28,4 @@ RUN cp /opt/entrypoint.sh ./entrypoint.sh
 RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction
 
-CMD ["sh", "entrypoint.sh"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
