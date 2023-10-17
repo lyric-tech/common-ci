@@ -1,7 +1,7 @@
 #Arguement Declaration
 ARG docker_registry
 
-FROM ${docker_registry}/spark:latest
+FROM ${docker_registry}/spark:reports_support
 ARG spark_uid=1001
 ARG private_repo_username
 ARG private_repo_token
