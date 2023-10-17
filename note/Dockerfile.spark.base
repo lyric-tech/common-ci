@@ -1,24 +1,6 @@
 #Arguement Declaration
 ARG docker_registry
 
-#Stage 1
-# FROM python:3.10-slim as requirements-stage
-# ARG private_repo_username
-# ARG private_repo_token
-# ARG github_username
-# ARG github_token
-
-# WORKDIR /tmp
-# COPY ./pyproject.toml ./poetry.lock* /tmp/
-# RUN apt-get update && \
-#     apt-get install -y git && \
-#     pip install poetry && \
-#     echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
-#     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
-#     git config --global credential.helper store && \
-#     poetry export -f requirements.txt --output requirements.txt --without-hashes
-
-# Final stage
 FROM ${docker_registry}/spark:latest
 ARG spark_uid=1001
 ARG private_repo_username
@@ -27,13 +9,14 @@ ARG github_username
 ARG github_token
 
 USER root
+RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
+    cp /opt/spark_entrypoint.sh /home/cbadmin/spark_entrypoint.sh
+RUN chmod -R 777 /home
 WORKDIR /home/cbadmin
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store && \
-    apt-get update && \
-    apt-get install -y git && \
     pip install poetry
 
 ENV PATH="/home/cbadmin/.local/bin:${PATH}"
@@ -41,7 +24,6 @@ ENV PATH="/home/cbadmin/.local/bin:${PATH}"
 COPY . .
 
 RUN poetry config virtualenvs.create false && \
-    poetry install --no-cache --no-interaction && \
-    rm -rf ${HOME}/.git-credentials
+    poetry install --no-cache --no-interaction
 
-CMD ["python3", "main.py"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
