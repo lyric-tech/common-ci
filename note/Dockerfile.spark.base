@@ -10,8 +10,9 @@ ARG github_token
 
 USER root
 RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
-    cp /opt/spark_entrypoint.sh /home/cbadmin/spark_entrypoint.sh
-RUN chmod -R 777 /home
+    chmod -R 777 /home/cbadmin && \
+    chmod +x /home/cbadmin/entrypoint.sh
+
 WORKDIR /home/cbadmin
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
@@ -26,4 +27,4 @@ COPY . .
 RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction
 
-ENTRYPOINT ["sh", "entrypoint.sh"]
+ENTRYPOINT ["/home/cbadmin/entrypoint.sh"]
