@@ -12,7 +12,6 @@ USER root
 RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
     cp /opt/spark_entrypoint.sh /home/cbadmin/spark_entrypoint.sh
 RUN chmod -R 777 /home
-RUN chmod a+x /home/cbadmin/spark_entrypoint.sh
 WORKDIR /home/cbadmin
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
