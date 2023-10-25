@@ -1,7 +1,7 @@
 #Arguement Declaration
 ARG docker_registry
 
-FROM ${docker_registry}/spark:reports_support
+FROM ${docker_registry}/spark:fix_for_entrypoint
 ARG spark_uid=1001
 ARG private_repo_username
 ARG private_repo_token
@@ -12,6 +12,7 @@ USER root
 RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
     cp /opt/spark_entrypoint.sh /home/cbadmin/spark_entrypoint.sh
 RUN chmod -R 777 /home
+RUN chmod a+x /home/cbadmin/spark_entrypoint.sh
 WORKDIR /home/cbadmin
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
