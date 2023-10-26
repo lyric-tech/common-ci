@@ -27,4 +27,10 @@ COPY . .
 RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction
 
+USER ${spark_uid}
+
+RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
+    echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
+    git config --global credential.helper store
+
 ENTRYPOINT ["/home/cbadmin/entrypoint.sh"]
