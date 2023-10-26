@@ -8,7 +8,7 @@ ARG private_repo_token
 ARG github_username
 ARG github_token
 
-USER ${spark_uid}
+USER root
 
 RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
     chmod +x /home/cbadmin/entrypoint.sh
@@ -18,15 +18,13 @@ WORKDIR /home/cbadmin
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store && \
-    pip install --user poetry
+    pip install poetry
 
 ENV PATH="/home/cbadmin/.local/bin:${PATH}"
 
 COPY . .
 
 RUN poetry config virtualenvs.create false && \
-    poetry config virtualenvs.in-project true && \
-    poetry config virtualenvs.options.system-site-packages true && \
     poetry install --no-cache --no-interaction
 
 ENTRYPOINT ["/home/cbadmin/entrypoint.sh"]
