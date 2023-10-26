@@ -28,3 +28,5 @@ RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction
 
 ENTRYPOINT ["/bin/bash", "entrypoint.sh"]
+
+CMD ["python", "main.py"]
