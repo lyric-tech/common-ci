@@ -12,7 +12,7 @@ USER root
 
 RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
     chmod +x /home/cbadmin/entrypoint.sh
-
+RUN chmod -R 777 /home
 WORKDIR /home/cbadmin
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
@@ -27,4 +27,6 @@ COPY . .
 RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction
 
-ENTRYPOINT ["/bin/bash" ,"/home/cbadmin/entrypoint.sh"]
+ENTRYPOINT ["/home/cbadmin/entrypoint.sh"]
+
+CMD ["python", "main.py"]

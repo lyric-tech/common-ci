@@ -10,7 +10,8 @@ ARG github_username
 ARG github_token
 
 USER root
-RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh
+RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
+    chmod +x /home/cbadmin/entrypoint.sh
 RUN chmod -R 777 /home
 WORKDIR /home/cbadmin
 
