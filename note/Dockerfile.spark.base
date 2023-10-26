@@ -27,6 +27,4 @@ COPY . .
 RUN poetry config virtualenvs.create false && \
     poetry install --no-cache --no-interaction
 
-ENTRYPOINT ["./entrypoint.sh"]
-
-CMD ["python", "main.py"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
