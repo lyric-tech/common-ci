@@ -118,7 +118,7 @@ jobs:
 
   promote_artifact:
     needs: publish_artifact
-    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v') == true && (contains(github.event.repository.name, 'datasource') == true || contains(github.event.repository.name, 'transformer'))
+    if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v') == true && (contains(github.event.repository.name, 'datasource') == true || contains(github.event.repository.name, 'transformer') == true || (contains(github.event.repository.name, 'nc-transformer') == true)
     uses: ./.github/workflows/note-artifact-promote.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
