@@ -2,7 +2,7 @@
 #Arguement Declaration
 ARG docker_registry
 
-FROM ${docker_registry}/note-base/pandas1:fix_for_entrypoint
+FROM ${docker_registry}/note-base/pandas1:1.0.0
 ARG docker_uid=1001
 ARG private_repo_username
 ARG private_repo_token

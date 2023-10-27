@@ -2,7 +2,7 @@
 ARG docker_registry
 
 # Final stage
-FROM ${docker_registry}/note-base/pandas2:fix_for_entrypoint
+FROM ${docker_registry}/note-base/pandas2:1.0.0
 ARG docker_uid=1001
 ARG private_repo_username
 ARG private_repo_token

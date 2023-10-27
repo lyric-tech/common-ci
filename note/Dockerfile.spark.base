@@ -1,7 +1,7 @@
 #Arguement Declaration
 ARG docker_registry
 
-FROM ${docker_registry}/spark:fix_for_entrypoint
+FROM ${docker_registry}/spark:1.0.0
 ARG spark_uid=1001
 ARG private_repo_username
 ARG private_repo_token
