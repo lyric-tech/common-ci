@@ -1,43 +1,32 @@
 #Arguement Declaration
 ARG docker_registry
 
-#Stage 1
-FROM python:3.10-slim as requirements-stage
-ARG private_repo_username
-ARG private_repo_token
-ARG github_username
-ARG github_token
-
-WORKDIR /tmp
-COPY ./pyproject.toml ./poetry.lock* /tmp/
-
-RUN apt-get update && \
-    apt-get install -y git && \
-    pip install poetry && \
-    echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
-    echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
-    git config --global credential.helper store && \
-    poetry export -f requirements.txt --output requirements.txt --without-hashes
-
 # Final stage
-FROM ${docker_registry}/note-base/pandas2:latest
+FROM ${docker_registry}/note-base/pandas2:1.0.0
 ARG docker_uid=1001
 ARG private_repo_username
 ARG private_repo_token
 ARG github_username
 ARG github_token
 
-USER ${docker_uid}
+USER root
+RUN mkdir -p /home/cbadmin && cp /opt/entrypoint.sh /home/cbadmin/entrypoint.sh && \
+    chmod +x /home/cbadmin/entrypoint.sh
+RUN chmod -R 777 /home
 WORKDIR /home/cbadmin
-
-COPY --chown=${docker_uid}:${docker_uid} --from=requirements-stage /tmp/requirements.txt .
 
 RUN echo "https://$github_username:$github_token@github.com" >> $HOME/.git-credentials && \
     echo "https://$private_repo_username:$private_repo_token@gitlab.com" >> $HOME/.git-credentials && \
     git config --global credential.helper store && \
-    pip install --no-cache-dir --upgrade -r /home/cbadmin/requirements.txt && \
-    rm -rf ${HOME}/.git-credential
+    pip install poetry
+
+ENV PATH="/home/cbadmin/.local/bin:${PATH}"
 
 COPY . .
 
-CMD ["python3", "main.py"]
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-cache --no-interaction
+
+ENTRYPOINT ["./entrypoint.sh"]
+
+CMD ["python", "main.py"]
