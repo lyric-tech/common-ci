@@ -75,6 +75,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
+          env
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp artifact.zip lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
           gsutil cp artifact.zip gs://lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
