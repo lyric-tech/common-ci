@@ -88,7 +88,7 @@ jobs:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         run: |
           aws configure set region $AWS_DEFAULT_REGION
-          aws s3 cp ./artifact.zip lyric-store-lyric/note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+          aws s3 cp ./artifact.zip s3://lyric-store-lyric/note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
           gsutil cp ./artifact.zip gs://lyric-store-lyric/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip          
 
       - name: Deploy to storage using CLI
