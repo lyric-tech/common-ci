@@ -102,14 +102,7 @@ jobs:
           GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
         run: |
           echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
-          apt-get update && \
-          apt-get install -y --no-install-recommends git
-          echo "https://$LYRIC_GITHUB_USERNAME:$LYRIC_GITHUB_TOKEN@github.com" >> $HOME/.git-credentials
-          git config --global credential.helper store
-          curl -sSL https://install.python-poetry.org | python -
-          pip install git+https://$GITLAB_USERNAME:$GITLAB_TOKEN@gitlab.com/chainbrain/platform/chainbrain.git@1.0.8
-          python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
-          mv .lyric/build/artifact.zip .
+          touch artifact.zip
 
       - name: Store artifact
         uses: actions/upload-artifact@v3
@@ -118,32 +111,8 @@ jobs:
           path: artifact.zip
           retention-days: 1
 
-  docker_publish:
-    needs: build_artifact
-    uses: ./.github/workflows/note_docker_publish.yml
-    with:
-      NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
-      NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
-      NOTE_CI_TEMPLATE_VERSION: ${{ inputs.NOTE_CI_TEMPLATE_VERSION }}
-    secrets:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      AWS_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
-      ORG_ID: ${{ secrets.ORG_ID }}
-      GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
-      GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
-      LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
-      LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
-      GCP_WORKLOAD_IDENTITY: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
-      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-      GCR_REGISTRY: ${{ secrets.GCR_REGISTRY }}
-      ACR_ENDPOINT: ${{ secrets.ACR_ENDPOINT }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}    
-
   publish_artifact:
-    needs: docker_publish
+    needs: build_artifact
     uses: ./.github/workflows/note_artifact_publish.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
