@@ -102,14 +102,7 @@ jobs:
           GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
         run: |
           echo "note_name & tag & repo: $NOTE_NAME, $NOTE_TAG, $NOTE_IMAGE_REPO"
-          apt-get update && \
-          apt-get install -y --no-install-recommends git
-          echo "https://$LYRIC_GITHUB_USERNAME:$LYRIC_GITHUB_TOKEN@github.com" >> $HOME/.git-credentials
-          git config --global credential.helper store
-          curl -sSL https://install.python-poetry.org | python -
-          pip install git+https://$GITLAB_USERNAME:$GITLAB_TOKEN@gitlab.com/chainbrain/platform/chainbrain.git@1.0.8
-          python -m chainbrain.utils.build_utils --version ${NOTE_TAG} --image-url $NOTE_IMAGE_REPO:$NOTE_TAG
-          mv .lyric/build/artifact.zip .
+          touch artifact.zip
 
       - name: Store artifact
         uses: actions/upload-artifact@v3
