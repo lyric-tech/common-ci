@@ -69,7 +69,7 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
             
-      - name: Upload artifact to File Storages
+      - name: Upload artifact to S3/GCS File Storages
         env:
           ARTIFACT_S3_PATH: ${{ secrets.ARTIFACT_S3_PATH }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
@@ -79,11 +79,11 @@ jobs:
           aws s3 cp ./artifact.zip s3://lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
           gsutil cp ./artifact.zip gs://lyric-store-lyric/note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
 
-      - name: Deploy to storage using CLI
+      - name: Copy Artifcat to Azure Blob
         uses: azure/CLI@v1
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         with:
           azcliversion: latest
           inlineScript: |     
-            az storage blob upload --connection-string ${{ secrets.AZURE_CONNECTIONSTRING }} --container-name lyric-store-lyric --file ./artifact.zip --name note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+            az storage blob upload --connection-string ${{ secrets.AZURE_CONNECTIONSTRING }} --container-name lyric-store-lyric --name note_artifacts/lyric/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip --type block --file ./artifact.zip 

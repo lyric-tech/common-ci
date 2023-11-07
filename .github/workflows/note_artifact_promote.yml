@@ -82,7 +82,7 @@ jobs:
         run: |
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
-      - name: Upload artifact to S3 to Customer Path
+      - name: Upload artifact to S3/GCS to Customer Path
         env:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
@@ -91,12 +91,11 @@ jobs:
           aws s3 cp ./artifact.zip s3://lyric-store-lyric/note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
           gsutil cp ./artifact.zip gs://lyric-store-lyric/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip          
 
-      - name: Deploy to storage using CLI
+      - name: Copy Artifcat to Azure Blob Customer Path
         uses: azure/CLI@v1
         env:
           NOTE_TAG: ${{ inputs.NOTE_TAG }}
         with:
           azcliversion: latest
           inlineScript: |     
-            az storage blob upload --connection-string ${{ secrets.AZURE_CONNECTIONSTRING }} --container-name lyric-store-lyric --file ./artifact.zip --name ${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-  
+            az storage blob upload --connection-string ${{ secrets.AZURE_CONNECTIONSTRING }} --container-name lyric-store-lyric --name note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip --type block --file ./artifact.zip
