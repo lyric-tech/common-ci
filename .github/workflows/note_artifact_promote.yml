@@ -98,4 +98,4 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |     
-            az storage blob upload --connection-string '${{ secrets.AZURE_CONNECTIONSTRING }}' --container-name lyric-store-lyric --name note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip --type block --file ./artifact.zip
+            az storage blob upload --connection-string '${{ secrets.AZURE_CONNECTIONSTRING }}' --container-name lyric-store-lyric --name note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip --type block --file ./artifact.zip --overwrite true
