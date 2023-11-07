@@ -89,5 +89,14 @@ jobs:
         run: |
           aws configure set region $AWS_DEFAULT_REGION
           aws s3 cp artifact.zip lyric-store-lyric/note_artifacts/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-          gsutil cp artifact.zip gs://lyric-store-lyric/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
-          az storage blob upload --connection-string ${{ secrets.AZURE_CONNECTIONSTRING }} --container-name lyric-store-lyric --file artifact.zip --name ${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+          gsutil cp artifact.zip gs://lyric-store-lyric/${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip          
+
+      - name: Deploy to storage using CLI
+        uses: azure/CLI@v1
+        env:
+          NOTE_TAG: ${{ inputs.NOTE_TAG }}
+        with:
+          azcliversion: latest
+          inlineScript: |     
+            az storage blob upload --connection-string ${{ secrets.AZURE_CONNECTIONSTRING }} --container-name lyric-store-lyric --file artifact.zip --name ${{ matrix.customer }}/${NOTE_NAME}/${NOTE_NAME}_${NOTE_TAG}.zip
+  
