@@ -119,6 +119,7 @@ jobs:
           retention-days: 1
 
   publish_artifact:
+    needs: build_artifact
     uses: ./.github/workflows/note_artifact_publish.yml
     with:
       NOTE_TAG: "${{ inputs.NOTE_TAG == 'main' && 'latest' || inputs.NOTE_TAG }}"
