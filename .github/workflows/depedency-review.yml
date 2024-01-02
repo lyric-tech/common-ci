@@ -1,0 +1,8 @@
+name: "Dependency Review"
+
+on:
+  workflow_call:
+
+jobs:
+  dependency-review:
+    uses: lyric-tech/common-ci/.github/workflows/microservice_docker_publish.yml@latest
