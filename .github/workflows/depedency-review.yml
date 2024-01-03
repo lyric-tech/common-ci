@@ -5,4 +5,10 @@ on:
 
 jobs:
   dependency-review:
-    uses: lyric-tech/common-ci/.github/workflows/microservice_docker_publish.yml@latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
+        
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v3
