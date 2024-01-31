@@ -78,7 +78,7 @@ permissions:
 jobs:
   build_artifact:
     name: Build Artifact
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     container:
       image: python:3.10-slim
     steps:
