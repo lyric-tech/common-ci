@@ -68,7 +68,7 @@ jobs:
   # Build and publish
   build_and_publish:
     name: Build and Publish
-    runs-on: ubuntu-latest-m
+    runs-on: self-hosted
     steps:
     # Checkout the repository
     - name: Check out code
