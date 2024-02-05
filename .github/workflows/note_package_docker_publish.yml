@@ -73,6 +73,8 @@ jobs:
     # Checkout the repository
     - name: Check out code
       uses: actions/checkout@v4
+      with:
+        clean: false
 
     # Configure AWS credentials
     - name: Configure AWS credentials
