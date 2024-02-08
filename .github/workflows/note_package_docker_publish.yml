@@ -59,7 +59,7 @@ on:
         required: true
         description: 'ACR password for ACR'
       SLACK_NOTIFICATIONS_BOT_TOKEN:
-        required: true
+        required: false
         description: 'SLACK Token to send alerts'
              
 permissions:
