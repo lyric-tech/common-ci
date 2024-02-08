@@ -58,9 +58,6 @@ on:
       ACR_PASSWORD:
         required: true
         description: 'ACR password for ACR'
-      SLACK_NOTIFICATIONS_BOT_TOKEN:
-        required: false
-        description: 'SLACK Token to send alerts'
              
 permissions:
   id-token: write
@@ -169,10 +166,14 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
        
-    - uses: act10ns/slack@v2
+    - name: Sent to Slack    
+      uses: ravsamhq/notify-slack-action@v2
+      if: failure()
       with:
         status: ${{ job.status }}
-        steps: ${{ toJson(steps) }}
-        channel: '#docker-build-alerts'
-        webhook-url: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
-      if: always()
+        notification_title: "{workflow} has {status_message}"
+        message_format: "{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>"
+        footer: "Linked Repo <{repo_url}|{repo}>"
+        notify_when: "failure"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 
