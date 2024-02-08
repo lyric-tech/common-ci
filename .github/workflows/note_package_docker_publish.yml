@@ -58,6 +58,9 @@ on:
       ACR_PASSWORD:
         required: true
         description: 'ACR password for ACR'
+      SLACK_NOTIFICATIONS_BOT_TOKEN:
+        required: true
+        description: 'SLACK Token to send alerts'
              
 permissions:
   id-token: write
@@ -165,3 +168,13 @@ jobs:
           chainbrain_version=${{ secrets.CHAINBRAIN_VERSION }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    - name: Notify Build Failure
+      if: failure()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        channel: docker-build-alerts
+        status: FAILED
+        color: danger        
