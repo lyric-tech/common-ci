@@ -131,7 +131,7 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: |
-          ${{ secrets.ECR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}
+          ${{ secrets.ECR_REGISTRY }}/lyric/${{ inputs.REPOSITORY_NAME }}
           ${{ secrets.GCR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}
           ${{ secrets.ACR_ENDPOINT }}/${{ inputs.REPOSITORY_NAME }}
         tags: |
