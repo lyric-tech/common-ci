@@ -128,7 +128,7 @@ jobs:
       with:
         images: |
           ${{ secrets.ECR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}
-          ${{ secrets.GCR_REGISTRY }}/${{ inputs.REPOSITORY_NAME }}
+          ${{ secrets.GCR_REGISTRY }}/lyric/${{ inputs.REPOSITORY_NAME }}
           ${{ secrets.ACR_ENDPOINT }}/${{ inputs.REPOSITORY_NAME }}
         tags: |
           type=ref,event=branch
