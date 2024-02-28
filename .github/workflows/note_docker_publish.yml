@@ -139,7 +139,7 @@ jobs:
       with:
         images: |
           ${{ secrets.ECR_REGISTRY }}/${{ env.NOTE_IMAGE_REPO }}
-          ${{ secrets.GCR_REGISTRY }}/${{ env.NOTE_IMAGE_REPO }}
+          ${{ secrets.GCR_REGISTRY }}/lyric/${{ env.NOTE_IMAGE_REPO }}
           ${{ secrets.ACR_ENDPOINT }}/${{ env.NOTE_IMAGE_REPO }}
         tags: |
           type=ref,event=branch
