@@ -2,7 +2,7 @@
 ARG docker_registry
 
 # Final stage
-FROM ${docker_registry}/note-base/polars:1.0.0
+FROM ${docker_registry}/note-base/file_system:1.0.0
 ARG docker_uid=1001
 ARG private_repo_username
 ARG private_repo_token
