@@ -29,4 +29,8 @@ RUN poetry config virtualenvs.create false && \
 
 ENTRYPOINT ["./entrypoint.sh"]
 
-CMD ["python", "main.py"]
+# enable permission
+RUN chmod -R 777 /home/cbadmin
+
+# NOTE_FOLDER_PATH, DATASET_PATH, PARAMETERS_PATH are environment variables set in lyric-runner
+CMD ["/bin/bash", "-c", "cd $NOTE_FOLDER_PATH && sh run.sh"]
