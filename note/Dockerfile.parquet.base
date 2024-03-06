@@ -33,4 +33,4 @@ ENTRYPOINT ["./entrypoint.sh"]
 RUN chmod -R 777 /home/cbadmin
 
 # NOTE_FOLDER_PATH, DATASET_PATH, PARAMETERS_PATH are environment variables set in lyric-runner
-CMD ["/bin/bash", "-c", "cd $NOTE_FOLDER_PATH && sh run.sh"]
+CMD ["/bin/bash run.sh"]
