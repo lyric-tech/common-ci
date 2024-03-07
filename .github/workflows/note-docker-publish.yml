@@ -79,6 +79,9 @@ jobs:
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas2.base > Dockerfile.pandas2.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.pandas1.base > Dockerfile.pandas1.base
         curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.polars.base > Dockerfile.polars.base
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.csv.base > Dockerfile.csv.base
+        curl https://raw.githubusercontent.com/lyric-tech/common-ci/${NOTE_CI_TEMPLATE_VERSION}/note/Dockerfile.parquet.base > Dockerfile.parquet.base
+
         DOCKER_BUILDKIT=1 docker build --cache-from $ECR_REGISTRY/$NOTE_IMAGE_REPO:${{ inputs.NOTE_TAG }} \
           --build-arg private_repo_username=chainbrain-token \
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
