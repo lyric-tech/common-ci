@@ -148,11 +148,11 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: '.'
-        file: ${{ inputs.BASE_DIRECTORY }}/Dockerfile
         platforms: linux/amd64
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        target: ${{ inputs.REPOSITORY_NAME }}
         build-args: |
           private_repo_username=${{ secrets.GITLAB_USERNAME }}
           private_repo_token=${{ secrets.GITLAB_TOKEN }}
