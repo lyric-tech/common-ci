@@ -58,7 +58,9 @@ on:
       ACR_PASSWORD:
         required: true
         description: 'ACR password for ACR'
-             
+      SLACK_WEBHOOK_URL:
+        required: true
+        description: 'Slack Webhook URL'             
 permissions:
   id-token: write
   contents: write 
@@ -164,3 +166,15 @@ jobs:
           chainbrain_version=${{ secrets.CHAINBRAIN_VERSION }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        
+    - name: Sent to Slack    
+      uses: ravsamhq/notify-slack-action@v2
+      if: failure()
+      with:
+        status: ${{ job.status }}
+        notification_title: "{workflow} has {status_message}"
+        message_format: "{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>"
+        footer: "Linked Repo <{repo_url}|{repo}>"
+        notify_when: "failure"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}        
