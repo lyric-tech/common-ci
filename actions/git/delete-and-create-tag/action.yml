@@ -21,6 +21,9 @@ inputs:
   tag-name:
     description: 'Tag name'
     required: true
+  app-name:
+    description: 'Application name'
+    required: true
 
 runs:
   using: "composite"
