@@ -28,12 +28,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: lyric-tech/common-ci/actions/docker/delete-tag@develop
+    - uses: lyric-tech/common-ci/actions/docker/delete-tag@UI_Monorepo
       with:
         repository: ${{ inputs.repository }}
         tag-name: ${{ inputs.tag-name }}
         token: ${{ inputs.token }}
-    - uses: lyric-tech/common-ci/actions/docker/create-tag@develop
+    - uses: lyric-tech/common-ci/actions/docker/create-tag@UI_Monorepo
       with:
         repository: ${{ inputs.repository }}
         tag-name: ${{ inputs.tag-name }}
