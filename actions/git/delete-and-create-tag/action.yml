@@ -36,3 +36,4 @@ runs:
         tag-name: ${{ inputs.tag-name }}
         token: ${{ inputs.token }}
         ref: ${{ inputs.ref }}
+        app-name: ${{ inputs.app-name }}
