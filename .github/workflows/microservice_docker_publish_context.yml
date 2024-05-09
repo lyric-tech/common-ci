@@ -15,6 +15,10 @@ on:
         required: true
         type: string
         description: 'Application name for Docker build'
+      TAG_NAME:
+        required: false
+        type: string
+        description: 'Tag name for Docker build'
     secrets:
       LYRIC_GITHUB_USERNAME:
         required: false
@@ -75,6 +79,8 @@ jobs:
     # Checkout the repository
     - name: Check out code
       uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.TAG_NAME }}
 
     # Configure AWS credentials
     - name: Configure AWS credentials
