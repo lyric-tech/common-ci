@@ -68,7 +68,7 @@ jobs:
   # Build and publish
   build_and_publish:
     name: Build and Publish
-    runs-on: self-hosted
+    runs-on: k8s-runner-dind
     steps:
     # Checkout the repository
     - name: Check out code
