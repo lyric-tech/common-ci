@@ -66,8 +66,9 @@ jobs:
           version: 'latest'
       - name: 'Use gcloud CLI'
         run: |
-          'gcloud info'
-          'gsutil ls'
+          gcloud info
+          gsutil ls
+          
       - name: Download artifact and docker image
         env:
           NOTE_TAG: ${{ inputs.NOTE_VERSION }}
