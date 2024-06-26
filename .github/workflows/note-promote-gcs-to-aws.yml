@@ -67,14 +67,13 @@ jobs:
       - name: 'Use gcloud CLI'
         run: |
           gcloud info
-          gsutil ls
           
       - name: Download artifact and docker image
         env:
           NOTE_TAG: ${{ inputs.NOTE_VERSION }}
           NOTE_VERSION: "${{ inputs.NOTE_VERSION == 'main' && 'latest' || inputs.NOTE_VERSION }}"
         run: |
-          gsutil cp gs://lyric-store-lyric/note_artifacts/private/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip artifact.zip
+          gcloud storage cp gs://lyric-store-lyric/note_artifacts/private/${NOTE_NAME}/${NOTE_NAME}_${NOTE_VERSION}.zip artifact.zip
           docker pull us-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID}}/lyric/note/${NOTE_NAME}:${NOTE_VERSION}
 
       - name: Configure AWS credentials
