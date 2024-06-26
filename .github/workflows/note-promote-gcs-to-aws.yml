@@ -40,14 +40,12 @@ jobs:
     steps:      
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 2048
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
+
       - name: Set note env variables
         env:
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
         run: |
+          df -h
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
       - name: Configure GCP Credentials
