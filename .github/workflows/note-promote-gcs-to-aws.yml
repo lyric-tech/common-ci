@@ -36,11 +36,8 @@ permissions:
 jobs:
   get_artifact:
     name: Get Artifact from GCS and promote to AWS
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:      
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-
       - name: Set note env variables
         env:
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
