@@ -37,7 +37,13 @@ jobs:
   get_artifact:
     name: Get Artifact from GCS and promote to AWS
     runs-on: ubuntu-latest
-    steps:
+    steps:      
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
       - name: Set note env variables
         env:
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
