@@ -42,7 +42,6 @@ jobs:
         env:
           NOTE_REPOSITORY_NAME: ${{ inputs.NOTE_REPOSITORY_NAME }}
         run: |
-          df -h
           echo "NOTE_NAME=$(echo $NOTE_REPOSITORY_NAME | sed 's/note-//')" >> $GITHUB_ENV
 
       - name: Configure GCP Credentials
@@ -52,6 +51,7 @@ jobs:
           token_format: 'access_token'
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          create_credentials_file: false
 
       - name: Login to GCR
         uses: docker/login-action@v2
