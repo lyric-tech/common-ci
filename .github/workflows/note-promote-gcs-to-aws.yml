@@ -63,13 +63,7 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
         with:
-          version: '>= 363.0.0'
-  
-      - name: 'Use gcloud CLI'
-        run: |
-          gcloud info
-          gcloud storage ls
-          gcloud artifacts repositories list
+          version: 'latest'
         
       - name: Download artifact and docker image
         env:
