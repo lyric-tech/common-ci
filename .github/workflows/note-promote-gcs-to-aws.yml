@@ -52,6 +52,7 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           create_credentials_file: false
+          cleanup_credentials: false
 
       - name: Login to GCR
         uses: docker/login-action@v2
@@ -59,12 +60,6 @@ jobs:
           registry: us-docker.pkg.dev
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
-
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'    
-        
-      - name: 'Use gcloud CLI'
-        run: 'gcloud info'
       
       - name: Download artifact and docker image
         env:
