@@ -104,3 +104,10 @@ jobs:
         run: |
           docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/lyric/note/${NOTE_NAME}:${{ inputs.NOTE_VERSION }} ${ECR_REGISTRY}/lyric/note/${NOTE_NAME}:${{ inputs.NOTE_VERSION }}
           docker push ${ECR_REGISTRY}/lyric/note/${NOTE_NAME}:${{ inputs.NOTE_VERSION }}
+      
+      - name: Clean up the images
+        env:
+          ECR_REGISTRY:  ${{ steps.login-ecr.outputs.registry }}
+        run:
+          docker rmi gcr.io/${{ secrets.GCP_PROJECT_ID }}/lyric/note/${NOTE_NAME}:${{ inputs.NOTE_VERSION }} --force
+          docker rmi ${ECR_REGISTRY}/lyric/note/${NOTE_NAME}:${{ inputs.NOTE_VERSION }} --force
