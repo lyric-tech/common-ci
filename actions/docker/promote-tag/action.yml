@@ -35,14 +35,31 @@ runs:
       env:       
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ inputs.ecr_repository }}
-      run: |
-        # Build a docker container and push it to ECR      
-        echo "Retagging image for promotion"
-        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} || true
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
-        
-        echo "Pushing Release Image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
+      run: |  
+        if [[ "$ECR_REPOSITORY" == "ui-monorepo" ]]; then
+          # Build a docker container and push it to ECR      
+          echo "Retagging image for promotion"
+          docker pull $ECR_REGISTRY/app-ui:${{ inputs.from_tag }} || true
+          docker tag $ECR_REGISTRY/app-ui:${{ inputs.from_tag }} $ECR_REGISTRY/app-ui:${{ inputs.to_tag }} || true
+          
+          echo "Pushing Release Image to ECR..."
+          docker push $ECR_REGISTRY/app-ui:${{ inputs.to_tag }} || true
+
+          echo "Retagging image for promotion"
+          docker pull $ECR_REGISTRY/studio-ui:${{ inputs.from_tag }} || true
+          docker tag $ECR_REGISTRY/studio-ui:${{ inputs.from_tag }} $ECR_REGISTRY/studio-ui:${{ inputs.to_tag }} || true
+          
+          echo "Pushing Release Image to ECR..."
+          docker push $ECR_REGISTRY/studio-ui:${{ inputs.to_tag }} || true
+        else
+          # Build a docker container and push it to ECR      
+          echo "Retagging image for promotion"
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} || true
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
+          
+          echo "Pushing Release Image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
+        fi
       shell: bash
 
     - name: 'Authenticate to Google Cloud'
@@ -69,7 +86,17 @@ runs:
         ECR_REPOSITORY: ${{ inputs.ecr_repository }}
         GCP_PROJECT_ID: ${{ inputs.gcp_project_id }}
       run: |
-        echo "Pushing Image to GCR..."
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
-        docker push us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/$ECR_REPOSITORY:${{ inputs.to_tag }} || true            
+        if [[ "$ECR_REPOSITORY" == "ui-monorepo" ]]; then
+          echo "Pushing Image to GCR..."
+          docker tag $ECR_REGISTRY/app-ui:${{ inputs.from_tag }} us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/app-ui:${{ inputs.to_tag }} || true
+          docker push us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/app-ui:${{ inputs.to_tag }} || true
+
+          echo "Pushing Image to GCR..."
+          docker tag $ECR_REGISTRY/studio-ui:${{ inputs.from_tag }} us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/studio-ui:${{ inputs.to_tag }} || true
+          docker push us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/studio-ui:${{ inputs.to_tag }} || true
+        else
+          echo "Pushing Image to GCR..."
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.from_tag }} us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
+          docker push us-docker.pkg.dev/${{ inputs.gcp_project_id }}/lyric/$ECR_REPOSITORY:${{ inputs.to_tag }} || true
+        fi        
       shell: bash
