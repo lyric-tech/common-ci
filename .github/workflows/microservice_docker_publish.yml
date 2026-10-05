@@ -60,6 +60,7 @@ jobs:
         ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
         BASE_DIRECTORY: ${{ inputs.BASE_DIRECTORY }}
         CHAINBRAIN_TOKEN: ${{ secrets.CHAINBRAIN_TOKEN }}
+        PRIVATE_REPO_USERNAME: chainbrain-token
         LYRIC_GITHUB_USERNAME: ${{ secrets.LYRIC_GITHUB_USERNAME }}
         LYRIC_GITHUB_TOKEN: ${{ secrets.LYRIC_GITHUB_TOKEN }}
 
@@ -78,6 +79,10 @@ jobs:
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
           --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
           --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
+          --secret id=github_username,env=LYRIC_GITHUB_USERNAME \
+          --secret id=github_token,env=LYRIC_GITHUB_TOKEN \
+          --secret id=private_repo_username,env=PRIVATE_REPO_USERNAME \
+          --secret id=private_repo_token,env=CHAINBRAIN_TOKEN \
           -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
         echo "Pushing Image to ECR..."
