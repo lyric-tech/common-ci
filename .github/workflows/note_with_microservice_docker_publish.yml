@@ -76,6 +76,8 @@ jobs:
           --build-arg private_repo_token=${CHAINBRAIN_TOKEN} \
           --build-arg github_username=${LYRIC_GITHUB_USERNAME} \
           --build-arg github_token=${LYRIC_GITHUB_TOKEN} \
+          --secret id=github_username,env=LYRIC_GITHUB_USERNAME \
+          --secret id=github_token,env=LYRIC_GITHUB_TOKEN \
           --build-arg docker_registry=${ECR_REGISTRY} \
           -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
